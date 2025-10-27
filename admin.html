@@ -912,17 +912,7 @@
         }
 
         function updateHighlightIcon() {
-            const sentiment = document.getElementById('stationSentiment')?.value;
-            const titleField = document.getElementById('stationTitle');
-            if (!titleField) return;
-            
-            let currentTitle = titleField.value;
-            // Entferne alten Icon
-            currentTitle = currentTitle.replace(/^⭐\s*/, '').replace(/^⚡\s*/, '');
-            
-            // Füge neuen Icon hinzu
-            const newIcon = sentiment === 'negative' ? '⚡' : '⭐';
-            titleField.value = newIcon + ' ' + currentTitle;
+            // Icon wird automatisch beim Rendern gesetzt - nichts zu tun
         }
 
         function saveStationEdit(idx) {
@@ -993,10 +983,10 @@
             const highlight = {
                 id: newId,
                 year: new Date().getFullYear().toString(),
-                title: '⭐ Neuer Highlight',
+                title: 'Neuer Highlight',
                 type: 'highlight',
                 sentiment: 'positive',
-                content: '<h2>⭐ Neuer Highlight</h2><p>Beschreibung hinzufügen...</p>'
+                content: '<p>Beschreibung hinzufügen...</p>'
             };
             
             if (!appData.stations) appData.stations = [];

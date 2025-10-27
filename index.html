@@ -289,9 +289,10 @@
             text-align: center;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             min-height: 100px;
+            position: relative;
         }
 
         .station:hover {
@@ -332,13 +333,17 @@
         .station-year {
             font-size: 0.8rem;
             color: #00d4ff;
-            margin-bottom: 5px;
+            margin-bottom: auto;
+            margin-top: 10px;
+            flex-shrink: 0;
         }
 
         .station-text {
             font-size: 0.9rem;
             color: #e0e0e0;
             font-weight: 500;
+            margin-top: auto;
+            flex-shrink: 0;
         }
 
         /* CONTENT SECTION */
@@ -425,13 +430,6 @@
         }
 
         /* RESPONSIVE */
-        @media (max-width: 1024px) {
-            .main-layout {
-                flex-direction: column;
-                gap: 20px;
-            }
-        }
-
         @media (max-width: 768px) {
             .container {
                 margin-left: 0;
@@ -551,7 +549,6 @@
     <script>
         // @ts-nocheck
         
-        // ⚠️ WICHTIG: Ersetze diese Werte mit deinen Firebase Credentials
         const firebaseConfig = {
             apiKey: "AIzaSyD1ifyOzWUOiN-_VmRhzBGkq1PsxUwfdqY",
             authDomain: "danielmeiermann-8fbd8.firebaseapp.com",
@@ -613,6 +610,9 @@
             const stationsGrid = document.getElementById('stationsGrid');
             stationsGrid.innerHTML = appData.stations.map((station, idx) => `
                 <div class="station ${station.type === 'highlight' ? (station.sentiment === 'negative' ? 'highlight-negative' : 'highlight') : ''}" onclick="toggleContent(${idx})">
+                    <div style="position: absolute; top: 4px; left: 4px; font-size: 0.9rem;">
+                        ${station.type === 'highlight' ? (station.sentiment === 'negative' ? '⚡' : '⭐') : '📍'}
+                    </div>
                     <div class="station-year">${station.year}</div>
                     <div class="station-text">${station.title}</div>
                 </div>
@@ -620,7 +620,6 @@
 
             const contentContainer = document.getElementById('contentContainer');
             contentContainer.innerHTML = appData.stations.map((station, idx) => {
-                // Entferne das h2 aus dem Content falls vorhanden
                 let cleanContent = station.content.replace(/<h2>.*?<\/h2>/s, '');
                 
                 return `
