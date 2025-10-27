@@ -108,6 +108,7 @@
 
         .desktop-layout {
             display: flex;
+            flex-direction: column;
             gap: 40px;
             align-items: flex-start;
         }
@@ -372,11 +373,6 @@
         }
 
         @media (max-width: 768px) {
-            .desktop-layout {
-                flex-direction: column;
-                gap: 20px;
-            }
-
             .header {
                 padding: 20px;
             }
@@ -396,29 +392,42 @@
             .stations-grid {
                 grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             }
+
+            .profile-section {
+                padding: 20px;
+            }
+
+            .skill-icons {
+                gap: 8px;
+            }
+
+            .skill-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="toolbar-top">
-        <a href="transkript.html" class="toolbar-icon">
-            <i class="fas fa-file-alt"></i>
-            <div class="icon-tooltip">Transkript</div>
-        </a>
-        <a href="admin.html" class="toolbar-icon">
-            <i class="fas fa-cog"></i>
-            <div class="icon-tooltip">Admin</div>
-        </a>
-    </div>
-
     <div class="container">
-        <div class="header">
-            <h1 id="headerName">Daniel Meiermann</h1>
-            <div class="age" id="headerAge">41 Jahre</div>
-            <p>Meine Karriere-Reise</p>
-        </div>
-
         <div class="desktop-layout">
+            <div class="header">
+                <div class="toolbar-top">
+                    <a href="transkript.html" class="toolbar-icon">
+                        <i class="fas fa-file-alt"></i>
+                        <div class="icon-tooltip">Transkript</div>
+                    </a>
+                    <a href="admin.html" class="toolbar-icon">
+                        <i class="fas fa-cog"></i>
+                        <div class="icon-tooltip">Admin</div>
+                    </a>
+                </div>
+                <h1 id="headerName">Daniel Meiermann</h1>
+                <div class="age" id="headerAge">41 Jahre</div>
+                <p>Meine Karriere-Reise</p>
+            </div>
+
             <div class="main-content">
                 <div class="profile-section">
                     <div class="profile-image-wrapper">
@@ -444,21 +453,23 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
     <script>
+        // @ts-nocheck
+        
         // ⚠️ WICHTIG: Ersetze diese Werte mit deinen Firebase Credentials
-const firebaseConfig = {
-  apiKey: "AIzaSyD1ifyOzWUOiN-_VmRhzBGkq1PsxUwfdqY",
-  authDomain: "danielmeiermann-8fbd8.firebaseapp.com",
-  databaseURL: "https://danielmeiermann-8fbd8-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "danielmeiermann-8fbd8",
-  storageBucket: "danielmeiermann-8fbd8.firebasestorage.app",
-  messagingSenderId: "641372578638",
-  appId: "1:641372578638:web:66f9c8e7fec71c26a3341f"
-};
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "your-project.firebaseapp.com",
+            databaseURL: "https://your-project.firebaseio.com",
+            projectId: "your-project",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef123456"
+        };
 
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const dataRef = database.ref('presentations/data');
-    </script>
+
         let appData = {};
         const skillContents = [];
         let currentSkillIndex = null;
