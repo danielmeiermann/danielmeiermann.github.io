@@ -54,31 +54,60 @@
       "id": 0,
       "year": "2004-2010",
       "title": "FH Gelsenkirchen",
+      "type": "station",
       "content": "<h2>🎓 FH Gelsenkirchen (2004-2010)</h2><p><strong>Diplom in Controlling</strong></p><ul><li>Spezialisierung auf Finanzcontrolling und IT-Kostenmanagement</li><li>Foundations für analytisches Denken und Prozessoptimierung</li><li>Erste Berührung mit IT und Datenmanagement</li></ul>"
     },
     {
       "id": 1,
       "year": "2010-2015",
       "title": "real,-",
+      "type": "station",
       "content": "<h2>🏢 real,- / Metro AG (2010-2015)</h2><p><strong>IT-Controlling & IT-Tools-Management</strong></p><ul><li>Budgetsteuerung und Kostenanalytik für IT-Infrastruktur</li><li>Tools & Automatisierung: Erste Erfolge bei Prozessoptimierung</li><li>Datenvisualisierung und Reporting für Management</li><li>Erste große BI-Projekte</li></ul>"
     },
     {
       "id": 2,
-      "year": "2015-2018",
-      "title": "Deutsche Post - IT-Controlling",
-      "content": "<h2>🔧 Deutsche Post - IT-Controlling (2015-2018)</h2><p><strong>Zentrale Position mit großer Verantwortung</strong></p><ul><li><strong>BI-Lösung für Budgetsteuerung:</strong> Zentrale Lösung für gesamte IT-Kostenverantwortung</li><li>Automatisierung von Reportingprozessen (Zeitersparnis: 40%)</li><li>KPI-Dashboard Entwicklung für C-Level</li><li>Power BI erste intensive Erfahrung</li></ul>"
+      "year": "2012",
+      "title": "⭐ Erste BI-Lösung",
+      "type": "highlight",
+      "sentiment": "positive",
+      "content": "<h2>⭐ Erste zentrale BI-Lösung (2012)</h2><p><strong>Meilenstein der Karriere</strong></p><ul><li>Entwicklung der ersten unternehmensweiten BI-Lösung bei real,-</li><li>Echtzeit-Monitoring für IT-Budgets eingeführt</li><li>Erkenntnis: Daten sind das Gold des 21. Jahrhunderts</li><li>Diese Erfahrung prägte meine gesamte weitere Karriere</li></ul>"
     },
     {
       "id": 3,
-      "year": "2018-2020",
-      "title": "Deutsche Post - Projektleiter",
-      "content": "<h2>📊 Deutsche Post - Projektleitung (2018-2020)</h2><p><strong>Senior IT Projektleiter</strong></p><ul><li>Migration komplexer ERP- und BI-Systeme</li><li>Agile Transformation: Scrum Master, Kanban Einführung</li><li>Stakeholder-Management in Großprojekten (100+ Beteiligte)</li><li>Key Learning: Kommunikation ist Schlüssel zum Erfolg</li></ul>"
+      "year": "2015-2018",
+      "title": "Deutsche Post - IT-Controlling",
+      "type": "station",
+      "content": "<h2>🔧 Deutsche Post - IT-Controlling (2015-2018)</h2><p><strong>Zentrale Position mit großer Verantwortung</strong></p><ul><li><strong>BI-Lösung für Budgetsteuerung:</strong> Zentrale Lösung für gesamte IT-Kostenverantwortung</li><li>Automatisierung von Reportingprozessen (Zeitersparnis: 40%)</li><li>KPI-Dashboard Entwicklung für C-Level</li><li>Power BI erste intensive Erfahrung</li></ul>"
     },
     {
       "id": 4,
+      "year": "2017",
+      "title": "🎯 Transformation Leader",
+      "type": "highlight",
+      "sentiment": "positive",
+      "content": "<h2>🎯 Agile Transformation Leadership (2017)</h2><p><strong>Persönliche Wendung</strong></p><ul><li>Führung der Agile Transformation im Team</li><li>Scrum Master Zertifizierung abgeschlossen</li><li>Erkenntnis: Menschen sind wichtiger als Prozesse</li><li>Beginn der Fokussierung auf Führung und Strategie statt nur Technik</li></ul>"
+    },
+    {
+      "id": 5,
+      "year": "2018-2020",
+      "title": "Deutsche Post - Projektleiter",
+      "type": "station",
+      "content": "<h2>📊 Deutsche Post - Projektleitung (2018-2020)</h2><p><strong>Senior IT Projektleiter</strong></p><ul><li>Migration komplexer ERP- und BI-Systeme</li><li>Agile Transformation: Scrum Master, Kanban Einführung</li><li>Stakeholder-Management in Großprojekten (100+ Beteiligte)</li><li>Key Learning: Kommunikation ist Schlüssel zum Erfolg</li></ul>"
+    },
+    {
+      "id": 6,
       "year": "2020-Heute",
       "title": "Deutsche Post - Product Owner",
+      "type": "station",
       "content": "<h2>🚀 Deutsche Post - Product Owner (2020-Heute)</h2><p><strong>Product Owner & Senior Solution Architect</strong></p><ul><li>Verantwortung für 3-4 kritische zentrale IT-Lösungen</li><li>Budget: ~10 Mio. Euro p.a., Team: 25+ externe Partner</li><li><strong>KI & RPA Automatisierung:</strong> Process Mining, RPA-Workflows, ML-Modelle</li><li><strong>Power BI KPI-Steuerung:</strong> Echtzeit-Dashboards, Prognose-Modelle</li><li>Cloud Migration und Multi-Cloud-Strategie</li></ul>"
+    },
+    {
+      "id": 7,
+      "year": "2023",
+      "title": "🌟 KI-Initiative",
+      "type": "highlight",
+      "sentiment": "positive",
+      "content": "<h2>🌟 KI und Machine Learning Initiatives (2023)</h2><p><strong>Sprung in die Zukunft</strong></p><ul><li>Implementierung von Machine Learning Modellen für Prognosen</li><li>KI-gestützte Process Mining und RPA Automation</li><li>Leadership im Bereich AI-Adoption im Unternehmen</li><li>Erkenntnis: KI ist nicht Zukunftsmusik, sondern Gegenwart</li></ul>"
     }
   ]
 }

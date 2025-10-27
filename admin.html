@@ -200,11 +200,25 @@
             display: flex;
             gap: 15px;
             align-items: center;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .sortable-item:hover {
             background: rgba(0, 212, 255, 0.25);
+        }
+
+        .sortable-item[dragging] {
+            opacity: 0.5;
+            transform: scale(0.95);
+            background: rgba(0, 212, 255, 0.05) !important;
+        }
+        
+        .sortable-item:hover {
+            background: rgba(0, 212, 255, 0.25);
+        }
+        
+        .sortable-list {
+            position: relative;
         }
 
         .drag-handle {
@@ -342,7 +356,7 @@
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('profile')">👤 Profil</button>
             <button class="tab-btn" onclick="switchTab('skills')">💡 Kompetenzen</button>
-            <button class="tab-btn" onclick="switchTab('werdegang')">📈 Werdegang</button>
+            <button class="tab-btn" onclick="switchTab('werdegang')">📈 Werdegang & Highlights</button>
         </div>
 
         <div id="profile" class="tab-content active">
@@ -393,19 +407,24 @@
 
         <div id="werdegang" class="tab-content">
             <div class="section">
-                <h2>📈 Werdegang</h2>
+                <h2>📈 Werdegang & Highlights</h2>
                 
-                <button class="btn btn-success" style="margin-bottom: 20px;" onclick="addStation()">
-                    <i class="fas fa-plus"></i> Neue Station
-                </button>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn btn-success" onclick="addStation()">
+                        <i class="fas fa-plus"></i> Neue Station
+                    </button>
+                    <button class="btn btn-success" onclick="addHighlight()">
+                        <i class="fas fa-plus"></i> Neuer Highlight
+                    </button>
+                </div>
                 
-                <div class="sortable-list" id="stationsList"></div>
+                <div class="sortable-list" id="allStationsList"></div>
 
-                <button class="btn btn-success" style="margin-top: 20px;" onclick="saveStations()">
+                <button class="btn btn-success" style="margin-top: 20px;" onclick="saveAllStations()">
                     <i class="fas fa-save"></i> Speichern
                 </button>
                 
-                <div class="message success" id="stationsMessage">✓ Gespeichert</div>
+                <div class="message success" id="allStationsMessage">✓ Gespeichert</div>
             </div>
         </div>
     </div>
@@ -416,13 +435,13 @@
     <script>
         // ⚠️ WICHTIG: Ersetze diese Werte mit deinen Firebase Credentials
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "your-project.firebaseapp.com",
-            databaseURL: "https://your-project.firebaseio.com",
-            projectId: "your-project",
-            storageBucket: "your-project.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef123456"
+            apiKey: "AIzaSyD1ifyOzWUOiN-_VmRhzBGkq1PsxUwfdqY",
+            authDomain: "danielmeiermann-8fbd8.firebaseapp.com",
+            databaseURL: "https://danielmeiermann-8fbd8-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "danielmeiermann-8fbd8",
+            storageBucket: "danielmeiermann-8fbd8.appspot.com",
+            messagingSenderId: "641372578638",
+            appId: "1:641372578638:web:66f9c8e7fec71c26a3341f"
         };
 
         // Firebase initialisieren
@@ -469,6 +488,7 @@
 
         let appData = {};
         let draggedItem = null;
+        let highlightEditors = {};
 
         async function loadData() {
             try {
@@ -476,6 +496,31 @@
                     .then(snapshot => {
                         if (snapshot.exists()) {
                             appData = snapshot.val();
+                            // Stelle sicher, dass alle Stationen ein type Feld haben
+                            if (appData.stations) {
+                                appData.stations = appData.stations.map(s => {
+                                    if (!s.type) {
+                                        s.type = 'station';
+                                    }
+                                    return s;
+                                });
+                                
+                                // Sortiere nach sortOrder falls vorhanden
+                                appData.stations.sort((a, b) => {
+                                    const aOrder = a.sortOrder !== undefined ? a.sortOrder : a.id;
+                                    const bOrder = b.sortOrder !== undefined ? b.sortOrder : b.id;
+                                    return aOrder - bOrder;
+                                });
+                            }
+                            
+                            // Sortiere auch Skills nach sortOrder
+                            if (appData.skills) {
+                                appData.skills.sort((a, b) => {
+                                    const aOrder = a.sortOrder !== undefined ? a.sortOrder : a.id;
+                                    const bOrder = b.sortOrder !== undefined ? b.sortOrder : b.id;
+                                    return aOrder - bOrder;
+                                });
+                            }
                         } else {
                             console.log('Keine Daten in Firebase, verwende Defaults');
                             appData = getDefaultData();
@@ -506,13 +551,14 @@
                     { id: 0, icon: 'fa-chart-bar', name: 'Kompetenzen', title: '💡 Kompetenzen & Skills', content: '<p>Inhalte...</p>' }
                 ],
                 stations: [
-                    { id: 0, year: '2004-2010', title: 'FH Gelsenkirchen', content: '<h2>FH Gelsenkirchen</h2><p>Inhalte...</p>' }
+                    { id: 0, year: '2004-2010', title: 'FH Gelsenkirchen', type: 'station', content: '<h2>FH Gelsenkirchen</h2><p>Inhalte...</p>' }
                 ]
             };
         }
 
         async function saveData() {
             try {
+                console.log('Speichere Daten:', JSON.stringify(appData, null, 2));
                 dataRef.set(appData, (err) => {
                     if (err) {
                         console.error('Fehler beim Speichern auf Firebase:', err);
@@ -520,6 +566,7 @@
                         return false;
                     } else {
                         console.log('✓ Daten auf Firebase gespeichert');
+                        console.log('Gespeicherte Stationen:', appData.stations);
                         showMessage('profileMessage');
                         return true;
                     }
@@ -534,7 +581,7 @@
         function renderUI() {
             renderProfile();
             renderSkills();
-            renderStations();
+            renderAllStations();
         }
 
         function renderProfile() {
@@ -547,7 +594,7 @@
         function renderSkills() {
             const container = document.getElementById('skillsList');
             container.innerHTML = appData.skills.map((skill, idx) => `
-                <div class="sortable-item" draggable="true" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event, 'skills', ${idx})">
+                <div class="sortable-item" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="dragDrop(event, 'skills', ${idx})">
                     <div class="drag-handle">≡</div>
                     <div class="sortable-item-content">
                         <h3><i class="fas ${skill.icon}"></i> ${skill.name}</h3>
@@ -560,15 +607,20 @@
             `).join('');
         }
 
-        function renderStations() {
-            const container = document.getElementById('stationsList');
-            container.innerHTML = appData.stations.map((station, idx) => `
-                <div class="sortable-item" draggable="true" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event, 'stations', ${idx})">
+        function renderAllStations() {
+            const allStations = appData.stations || [];
+            const container = document.getElementById('allStationsList');
+            
+            container.innerHTML = allStations.map((station, idx) => `
+                <div class="sortable-item" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="dragDrop(event, 'allStations', ${idx})">
                     <div class="drag-handle">≡</div>
                     <div class="sortable-item-content">
-                        <h3>${station.year} - ${station.title}</h3>
+                        <h3 style="color: ${station.type === 'highlight' && station.sentiment === 'negative' ? '#ff6b6b' : '#00d4ff'}">
+                            ${station.type === 'highlight' ? (station.sentiment === 'negative' ? '⚡' : '⭐') : '📍'} 
+                            ${station.year} - ${station.title}
+                        </h3>
                     </div>
-                    <button class="icon-btn" onclick="editSkill(${idx})">
+                    <button class="icon-btn" onclick="editStation(${idx})">
                         <i class="fas fa-edit"></i>
                     </button>
                     <button class="icon-btn danger" onclick="deleteStation(${idx})">
@@ -578,46 +630,247 @@
             `).join('');
         }
 
+        function renderStations() {
+            renderAllStations();
+        }
+
+        function renderHighlights() {
+            renderAllStations();
+        }
+
+        function editStation(idx) {
+            closeModal();
+            const station = appData.stations[idx];
+            
+            // Bestimme den Titel - ob Station oder Highlight
+            const title = station.type === 'highlight' ? '⭐ Highlight bearbeiten' : `Bearbeite: ${station.title}`;
+            
+            // Zeige Sentiment-Select nur für Highlights
+            const sentimentField = station.type === 'highlight' ? `
+                <div class="form-group">
+                    <label style="color: #ffd700;">Sentiment</label>
+                    <select id="stationSentiment" onchange="updateHighlightIcon()" style="width: 100%; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0; margin-bottom: 15px;">
+                        <option value="positive" ${station.sentiment === 'positive' ? 'selected' : ''}>✅ Positiv (Erfolg, Meilenstein)</option>
+                        <option value="negative" ${station.sentiment === 'negative' ? 'selected' : ''}>⚡ Negativ (Schicksal, Herausforderung)</option>
+                    </select>
+                </div>
+            ` : '';
+            
+            const modal = document.createElement('div');
+            modal.setAttribute('data-modal', 'true');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.8); display: flex; align-items: center;
+                justify-content: center; z-index: 2000; padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: #1a1a3e; border: 2px solid #00d4ff; border-radius: 15px;
+                padding: 30px; max-width: 700px; width: 100%; max-height: 80vh;
+                overflow-y: auto; color: #e0e0e0;
+            `;
+            
+            content.innerHTML = `
+                <h2 style="color: #ffd700; margin-bottom: 20px;">${title}</h2>
+                
+                ${sentimentField}
+                
+                <div class="form-group">
+                    <label style="color: #ffd700;">Jahr</label>
+                    <input type="text" id="stationYear" value="${station.year}" style="width: 100%; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0; margin-bottom: 15px;">
+                </div>
+                
+                <div class="form-group">
+                    <label style="color: #ffd700;">Titel</label>
+                    <input type="text" id="stationTitle" value="${station.title}" style="width: 100%; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0; margin-bottom: 15px;">
+                </div>
+                
+                ${station.type === 'station' ? `
+                <div class="form-group">
+                    <label style="color: #ffd700;">Firmen-Logo Dateiname</label>
+                    <input type="text" id="stationLogoUrl" value="${station.logoUrl || ''}" placeholder="z.B. metro.jpg" style="width: 100%; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0; margin-bottom: 8px;">
+                    ${station.logoUrl ? `<img src="logos/${station.logoUrl}" style="max-width: 100px; max-height: 100px; margin-top: 10px; border-radius: 6px; margin-bottom: 15px;" onerror="this.style.display='none'">` : ''}
+                </div>
+                ` : ''}
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #ffd700; display: block; margin-bottom: 8px;">Inhalt</label>
+                    <div id="stationEditor" style="height: 250px;"></div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button onclick="saveStationEdit(${idx})" style="flex: 1; padding: 10px; background: rgba(76, 175, 80, 0.3); border: 2px solid #4caf50; color: #4caf50; border-radius: 6px; cursor: pointer; font-weight: 600;">Speichern</button>
+                    <button onclick="closeModal()" style="flex: 1; padding: 10px; background: rgba(255, 107, 107, 0.3); border: 2px solid #ff6b6b; color: #ff6b6b; border-radius: 6px; cursor: pointer; font-weight: 600;">Abbrechen</button>
+                </div>
+            `;
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            
+            setTimeout(() => {
+                try {
+                    const editor = new Quill('#stationEditor', {
+                        theme: 'snow',
+                        modules: { 
+                            toolbar: ['bold', 'italic', 'underline', { 'list': 'ordered' }, { 'list': 'bullet' }] 
+                        }
+                    });
+                    editor.root.innerHTML = station.content;
+                    window.currentStationEditor = editor;
+                    window.currentStationIdx = idx;
+                } catch (err) {
+                    console.error('Quill Init Error:', err);
+                }
+            }, 50);
+        }
+
         function dragStart(e) {
             draggedItem = e.target.closest('.sortable-item');
+            draggedItem.setAttribute('dragging', 'true');
+            draggedItem.style.opacity = '0.5';
+            draggedItem.style.transform = 'scale(0.95)';
+        }
+
+        function dragEnd(e) {
+            if (draggedItem) {
+                draggedItem.removeAttribute('dragging');
+                draggedItem.style.opacity = '1';
+                draggedItem.style.transform = 'scale(1)';
+            }
         }
 
         function dragOver(e) {
             e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            const container = e.target.closest('.sortable-list') || e.target.closest('#skillsList')?.parentElement;
+            if (!container) return;
+            
+            // Visuelles Feedback während Drag
+            const afterElement = getDragAfterElement(container, e.clientY);
+            const draggingElement = draggedItem;
+            
+            if (afterElement == null) {
+                container.appendChild(draggingElement);
+            } else {
+                container.insertBefore(draggingElement, afterElement);
+            }
         }
 
-        function dragDrop(e, type, index) {
-            e.preventDefault();
-            const targetItem = e.target.closest('.sortable-item');
-            if (!targetItem || targetItem === draggedItem) return;
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.sortable-item:not([dragging])')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
 
-            const array = type === 'skills' ? appData.skills : appData.stations;
-            const items = document.querySelectorAll(`#${type === 'skills' ? 'skillsList' : 'stationsList'} .sortable-item`);
+        function dragDrop(e, type, dropIndex) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('dragDrop aufgerufen mit type:', type, 'dropIndex:', dropIndex);
+            
+            // Reset drag styles
+            if (draggedItem) {
+                draggedItem.removeAttribute('dragging');
+                draggedItem.style.opacity = '1';
+                draggedItem.style.transform = 'scale(1)';
+            }
+            
+            if (!draggedItem) {
+                console.log('Kein draggedItem!');
+                return;
+            }
+
+            // Finde den tatsächlichen Index des gezogenen Elements in der aktuellen Liste
+            const containerId = type === 'skills' ? 'skillsList' : 'allStationsList';
+            const items = document.querySelectorAll(`#${containerId} .sortable-item`);
             const draggedIndex = Array.from(items).indexOf(draggedItem);
             
-            if (draggedIndex !== -1 && draggedIndex !== index) {
-                const temp = array[draggedIndex];
-                array[draggedIndex] = array[index];
-                array[index] = temp;
-                
-                if (type === 'skills') {
-                    renderSkills();
-                } else {
-                    renderStations();
-                }
-                saveData();
+            console.log('draggedIndex:', draggedIndex, 'dropIndex:', dropIndex, 'items.length:', items.length);
+            
+            if (draggedIndex === -1) {
+                console.log('Gezogenes Element nicht gefunden!');
+                draggedItem = null;
+                return;
             }
+            
+            if (draggedIndex === dropIndex) {
+                console.log('Gleicher Index, nichts zu tun');
+                draggedItem = null;
+                return;
+            }
+
+            let array;
+            
+            if (type === 'skills') {
+                array = appData.skills;
+            } else {
+                array = appData.stations;
+            }
+            
+            console.log('Vor Swap - Array:', array.map(a => ({id: a.id, title: a.title})));
+            
+            // Swap
+            const temp = array[draggedIndex];
+            array.splice(draggedIndex, 1);
+            array.splice(dropIndex, 0, temp);
+            
+            console.log('Nach Swap - Array:', array.map(a => ({id: a.id, title: a.title})));
+            
+            // Setze sortOrder
+            array.forEach((item, idx) => {
+                item.sortOrder = idx;
+            });
+            
+            console.log('Nach sortOrder - Array:', array.map(a => ({id: a.id, title: a.title, sortOrder: a.sortOrder})));
+            
+            // Re-render
+            if (type === 'skills') {
+                renderSkills();
+            } else {
+                renderAllStations();
+            }
+            
+            // Speichere
+            saveData();
+            draggedItem = null;
         }
 
         function editSkill(idx) {
             closeModal();
             const skill = appData.skills[idx];
-            const modal = createModal(`Bearbeite: ${skill.name}`);
             
-            modal.innerHTML += `
+            const modal = document.createElement('div');
+            modal.setAttribute('data-modal', 'true');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.8); display: flex; align-items: center;
+                justify-content: center; z-index: 2000; padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: #1a1a3e; border: 2px solid #00d4ff; border-radius: 15px;
+                padding: 30px; max-width: 700px; width: 100%; max-height: 80vh;
+                overflow-y: auto; color: #e0e0e0;
+            `;
+            
+            content.innerHTML = `
+                <h2 style="color: #ffd700; margin-bottom: 20px;">Bearbeite: ${skill.name}</h2>
+                
                 <div class="form-group">
                     <label style="color: #ffd700;">Titel</label>
-                    <input type="text" id="skillTitle" value="${skill.title}" style="width: 100%; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0;">
+                    <input type="text" id="skillTitle" value="${skill.title}" style="width: 100%; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0; margin-bottom: 15px;">
                 </div>
                 
                 <div style="margin-bottom: 15px;">
@@ -631,12 +884,23 @@
                 </div>
             `;
             
-            const editor = new Quill('#skillEditor', {
-                theme: 'snow',
-                modules: { toolbar: ['bold', 'italic', 'underline', { 'list': 'ordered' }, { 'list': 'bullet' }] }
-            });
-            editor.root.innerHTML = skill.content;
-            window.currentEditor = editor;
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            
+            setTimeout(() => {
+                try {
+                    const editor = new Quill('#skillEditor', {
+                        theme: 'snow',
+                        modules: { 
+                            toolbar: ['bold', 'italic', 'underline', { 'list': 'ordered' }, { 'list': 'bullet' }] 
+                        }
+                    });
+                    editor.root.innerHTML = skill.content;
+                    window.currentEditor = editor;
+                } catch (err) {
+                    console.error('Quill Init Error:', err);
+                }
+            }, 50);
         }
 
         function saveSkillEdit(idx) {
@@ -647,54 +911,51 @@
             closeModal();
         }
 
-        function editStation(idx) {
-            closeModal();
-            const station = appData.stations[idx];
-            const modal = createModal(`Bearbeite: ${station.title}`);
+        function updateHighlightIcon() {
+            const sentiment = document.getElementById('stationSentiment')?.value;
+            const titleField = document.getElementById('stationTitle');
+            if (!titleField) return;
             
-            modal.innerHTML += `
-                <div class="form-group">
-                    <label style="color: #ffd700;">Jahr</label>
-                    <input type="text" id="stationYear" value="${station.year}" style="width: 100%; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0;">
-                </div>
-                
-                <div class="form-group">
-                    <label style="color: #ffd700;">Titel</label>
-                    <input type="text" id="stationTitle" value="${station.title}" style="width: 100%; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0;">
-                </div>
-                
-                <div style="margin-bottom: 15px;">
-                    <label style="color: #ffd700; display: block; margin-bottom: 8px;">Inhalt</label>
-                    <div id="stationEditor" style="height: 250px;"></div>
-                </div>
-                
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button onclick="saveStationEdit(${idx})" style="flex: 1; padding: 10px; background: rgba(76, 175, 80, 0.3); border: 2px solid #4caf50; color: #4caf50; border-radius: 6px; cursor: pointer; font-weight: 600;">Speichern</button>
-                    <button onclick="closeModal()" style="flex: 1; padding: 10px; background: rgba(255, 107, 107, 0.3); border: 2px solid #ff6b6b; color: #ff6b6b; border-radius: 6px; cursor: pointer; font-weight: 600;">Abbrechen</button>
-                </div>
-            `;
+            let currentTitle = titleField.value;
+            // Entferne alten Icon
+            currentTitle = currentTitle.replace(/^⭐\s*/, '').replace(/^⚡\s*/, '');
             
-            const editor = new Quill('#stationEditor', {
-                theme: 'snow',
-                modules: { toolbar: ['bold', 'italic', 'underline', { 'list': 'ordered' }, { 'list': 'bullet' }] }
-            });
-            editor.root.innerHTML = station.content;
-            window.currentEditor = editor;
+            // Füge neuen Icon hinzu
+            const newIcon = sentiment === 'negative' ? '⚡' : '⭐';
+            titleField.value = newIcon + ' ' + currentTitle;
         }
 
         function saveStationEdit(idx) {
+            if (appData.stations[idx].type === 'highlight') {
+                appData.stations[idx].sentiment = document.getElementById('stationSentiment')?.value || 'positive';
+            }
             appData.stations[idx].year = document.getElementById('stationYear').value;
             appData.stations[idx].title = document.getElementById('stationTitle').value;
-            appData.stations[idx].content = window.currentEditor.root.innerHTML;
-            renderStations();
+            appData.stations[idx].content = window.currentStationEditor.root.innerHTML;
+            
+            // Speichere logoUrl nur für Stationen (nicht für Highlights)
+            if (appData.stations[idx].type === 'station') {
+                const logoUrlField = document.getElementById('stationLogoUrl');
+                if (logoUrlField) {
+                    appData.stations[idx].logoUrl = logoUrlField.value;
+                }
+            }
+            
+            renderAllStations();
             saveData();
             closeModal();
+            showMessage('allStationsMessage');
+        }
+
+        function saveAllStations() {
+            saveData();
+            showMessage('allStationsMessage');
         }
 
         function deleteStation(idx) {
-            if (confirm('Station wirklich löschen?')) {
+            if (confirm('Wirklich löschen?')) {
                 appData.stations.splice(idx, 1);
-                renderStations();
+                renderAllStations();
                 saveData();
             }
         }
@@ -705,10 +966,12 @@
                 id: newId,
                 year: 'YYYY-YYYY',
                 title: 'Neue Position',
+                type: 'station',
                 content: '<p>Beschreibung...</p>'
             });
-            renderStations();
-            editStation(appData.stations.length - 1);
+            renderAllStations();
+            const stationIdx = appData.stations.length - 1;
+            editStation(stationIdx);
         }
 
         function saveProfile() {
@@ -722,6 +985,141 @@
         function saveSkills() {
             saveData();
             showMessage('skillsMessage');
+        }
+
+        function addHighlight() {
+            const newId = Math.max(...appData.stations.map(s => s.id), -1) + 1;
+            
+            const highlight = {
+                id: newId,
+                year: new Date().getFullYear().toString(),
+                title: '⭐ Neuer Highlight',
+                type: 'highlight',
+                sentiment: 'positive',
+                content: '<h2>⭐ Neuer Highlight</h2><p>Beschreibung hinzufügen...</p>'
+            };
+            
+            if (!appData.stations) appData.stations = [];
+            appData.stations.push(highlight);
+            renderAllStations();
+            const highlightIdx = appData.stations.length - 1;
+            editStation(highlightIdx);
+        }
+
+        function renderHighlights() {
+            const highlights = appData.stations.filter(s => s.type === 'highlight') || [];
+            const list = document.getElementById('highlightsList');
+            
+            list.innerHTML = highlights.map((h, idx) => `
+                <div class="sortable-item" draggable="true" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event, 'highlights', ${idx})">
+                    <div class="drag-handle">≡</div>
+                    <div class="sortable-item-content">
+                        <h3>${h.year} - ${h.title}</h3>
+                    </div>
+                    <button class="icon-btn" onclick="editHighlight(${idx})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="icon-btn danger" onclick="deleteHighlight(${idx})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function editHighlight(idx) {
+            closeModal();
+            const highlights = appData.stations.filter(s => s.type === 'highlight');
+            const highlight = highlights[idx];
+            
+            const modal = document.createElement('div');
+            modal.setAttribute('data-modal', 'true');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.8); display: flex; align-items: center;
+                justify-content: center; z-index: 2000; padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: #1a1a3e; border: 2px solid #00d4ff; border-radius: 15px;
+                padding: 30px; max-width: 700px; width: 100%; max-height: 80vh;
+                overflow-y: auto; color: #e0e0e0;
+            `;
+            
+            content.innerHTML = `
+                <h2 style="color: #ffd700; margin-bottom: 20px;">⭐ Highlight bearbeiten</h2>
+                
+                <div class="form-group">
+                    <label style="color: #ffd700;">Sentiment</label>
+                    <select id="highlightSentiment" style="width: 100%; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0; margin-bottom: 15px;">
+                        <option value="positive" ${highlight.sentiment === 'positive' ? 'selected' : ''}>✅ Positiv (Erfolg, Meilenstein)</option>
+                        <option value="negative" ${highlight.sentiment === 'negative' ? 'selected' : ''}>❌ Negativ (Schicksal, Herausforderung)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label style="color: #ffd700;">Jahr</label>
+                    <input type="text" id="highlightYear" value="${highlight.year}" style="width: 100%; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0; margin-bottom: 15px;">
+                </div>
+                
+                <div class="form-group">
+                    <label style="color: #ffd700;">Titel</label>
+                    <input type="text" id="highlightTitle" value="${highlight.title}" style="width: 100%; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0; margin-bottom: 15px;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #ffd700; display: block; margin-bottom: 8px;">Inhalt</label>
+                    <div id="highlightEditor" style="height: 250px;"></div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button onclick="saveHighlightEdit(${idx})" style="flex: 1; padding: 10px; background: rgba(76, 175, 80, 0.3); border: 2px solid #4caf50; color: #4caf50; border-radius: 6px; cursor: pointer; font-weight: 600;">Speichern</button>
+                    <button onclick="closeModal()" style="flex: 1; padding: 10px; background: rgba(255, 107, 107, 0.3); border: 2px solid #ff6b6b; color: #ff6b6b; border-radius: 6px; cursor: pointer; font-weight: 600;">Abbrechen</button>
+                </div>
+            `;
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            
+            // Warte kurz damit DOM aktualisiert ist
+            setTimeout(() => {
+                try {
+                    const editor = new Quill('#highlightEditor', {
+                        theme: 'snow',
+                        modules: { 
+                            toolbar: ['bold', 'italic', 'underline', { 'list': 'ordered' }, { 'list': 'bullet' }] 
+                        }
+                    });
+                    editor.root.innerHTML = highlight.content;
+                    window.currentHighlightEditor = editor;
+                } catch (err) {
+                    console.error('Quill Init Error:', err);
+                }
+            }, 50);
+        }
+
+        function saveHighlightEdit(idx) {
+            const highlights = appData.stations.filter(s => s.type === 'highlight');
+            highlights[idx].sentiment = document.getElementById('highlightSentiment').value;
+            highlights[idx].year = document.getElementById('highlightYear').value;
+            highlights[idx].title = document.getElementById('highlightTitle').value;
+            highlights[idx].content = window.currentHighlightEditor.root.innerHTML;
+            renderHighlights();
+            saveData();
+            closeModal();
+            showMessage('highlightsMessage');
+        }
+
+        function deleteHighlight(idx) {
+            const highlights = appData.stations.filter(s => s.type === 'highlight');
+            const id = highlights[idx].id;
+            appData.stations = appData.stations.filter(s => s.id !== id);
+            renderHighlights();
+        }
+
+        function saveHighlights() {
+            saveData();
+            showMessage('highlightsMessage');
         }
 
         function saveStations() {
