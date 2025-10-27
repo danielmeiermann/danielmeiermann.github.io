@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Initialisierung</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Firebase Initialisierung</h1>
+        <p>Gib deine Firebase Credentials ein und klicke "Daten hochladen"</p>
+
+        <label>API Key:</label>
+        <input type="text" id="apiKey" placeholder="AIzaSy...">
+
+        <label>Auth Domain:</label>
+        <input type="text" id="authDomain" placeholder="your-project.firebaseapp.com">
+
+        <label>Database URL:</label>
+        <input type="text" id="databaseURL" placeholder="https://your-project.firebaseio.com">
+
+        <label>Project ID:</label>
+        <input type="text" id="projectId" placeholder="your-project">
+
+        <label>Storage Bucket:</label>
+        <input type="text" id="storageBucket" placeholder="your-project.appspot.com">
+
+        <label>Messaging Sender ID:</label>
+        <input type="text" id="messagingSenderId" placeholder="123456789">
+
+        <label>App ID:</label>
+        <input type="text" id="appId" placeholder="1:123456789:web:abc...">
+
+        <button onclick="initializeFirebase()">🚀 Daten hochladen</button>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+    <script>
+        const defaultData = {
+            profile: {
+                name: 'Daniel Meiermann',
+                role: 'Senior IT Product Owner',
+                age: '41 Jahre | Senior IT Product Owner & Solution Architect',
+                imageUrl: 'profile.jpg'
+            },
+            skills: [
+                {
+                    id: 0,
+                    icon: 'fa-chart-bar',
+                    name: 'Kompetenzen',
+                    title: '💡 Kompetenzen & Skills',
+                    content: '<p><strong>Kernstärken:</strong></p><ul><li>Analytisch: Komplexe Probleme strukturieren</li><li>Prozessorientiert: End-to-End Verständnis</li><li>Stakeholder-Management: Überzeugung von C-Level</li></ul><p style="margin-top: 20px;"><strong>Technische Skills:</strong></p><ul><li>Power BI Expert</li><li>SQL Advanced</li><li>Python für Data Science</li><li>RPA & Automatisierung</li></ul>'
+                },
+                {
+                    id: 1,
+                    icon: 'fa-star',
+                    name: 'Highlights',
+                    title: '⭐ Besonderheiten',
+                    content: '<p><strong>Erfolgreiche Großprojekte:</strong></p><ul><li>BI-Lösung für zentrale Budgetsteuerung (Kostensenkung 20%)</li><li>RPA Automatisierung (40% FTE-Einsparung)</li><li>Power BI Dashboard Suite (500+ Daily Users)</li></ul>'
+                },
+                {
+                    id: 2,
+                    icon: 'fa-rocket',
+                    name: 'Zukunft',
+                    title: '🎯 Zukunftsvision',
+                    content: '<p><strong>Vision für die nächsten 3-5 Jahre:</strong></p><ul><li>Daten- & BI-Architektur Weiterentwicklung</li><li>Advanced Analytics Capabilities aufbauen</li><li>Digitale Transformation führen</li></ul>'
+                },
+                {
+                    id: 3,
+                    icon: 'fa-handshake',
+                    name: 'Einstieg',
+                    title: '🤝 Wer bin ich',
+                    content: '<p>41 Jahre, leidenschaftlicher IT-Professional mit 14+ Jahren Erfahrung in Controlling, Projektmanagement und digitalem Produktmanagement.</p><p><strong>Kernfokus:</strong></p><ul><li>Zentrale IT-Lösungen mit Geschäftswert</li><li>Automatisierung und KI-Integration</li><li>Datengesteuerte KPI-Steuerung</li></ul>'
+                },
+                {
+                    id: 4,
+                    icon: 'fa-heart',
+                    name: 'Werte',
+                    title: '❤️ Meine Werte',
+                    content: '<p><strong>Professionelle Werte:</strong></p><ul><li>Exzellenz in allem</li><li>Innovation & kontinuierliche Verbesserung</li><li>Integrität & Transparenz</li><li>Empowerment von Menschen</li></ul>'
+                },
+                {
+                    id: 5,
+                    icon: 'fa-ellipsis-h',
+                    name: 'Mehr',
+                    title: '📚 Weitere Infos',
+                    content: '<p><strong>Zertifizierungen:</strong></p><ul><li>Scrum Master zertifiziert</li><li>Power BI Professional</li><li>Advanced SQL & Cloud Architecture</li></ul><p><strong>Kontakt & Vernetzung:</strong></p><ul><li>Open für Austausch & Zusammenarbeit</li></ul>'
+                }
+            ],
+            stations: [
+                {
+                    id: 0,
+                    year: '2004-2010',
+                    title: 'FH Gelsenkirchen',
+                    content: '<h2>🎓 FH Gelsenkirchen (2004-2010)</h2><p><strong>Diplom in Controlling</strong></p><ul><li>Spezialisierung auf Finanzcontrolling und IT-Kostenmanagement</li><li>Foundations für analytisches Denken und Prozessoptimierung</li><li>Erste Berührung mit IT und Datenmanagement</li></ul>'
+                },
+                {
+                    id: 1,
+                    year: '2010-2015',
+                    title: 'real,-',
+                    content: '<h2>🏢 real,- / Metro AG (2010-2015)</h2><p><strong>IT-Controlling & IT-Tools-Management</strong></p><ul><li>Budgetsteuerung und Kostenanalytik für IT-Infrastruktur</li><li>Tools & Automatisierung: Erste Erfolge bei Prozessoptimierung</li><li>Datenvisualisierung und Reporting für Management</li><li>Erste große BI-Projekte</li></ul>'
+                },
+                {
+                    id: 2,
+                    year: '2015-2018',
+                    title: 'Deutsche Post - IT-Controlling',
+                    content: '<h2>🔧 Deutsche Post - IT-Controlling (2015-2018)</h2><p><strong>Zentrale Position mit großer Verantwortung</strong></p><ul><li><strong>BI-Lösung für Budgetsteuerung:</strong> Zentrale Lösung für gesamte IT-Kostenverantwortung</li><li>Automatisierung von Reportingprozessen (Zeitersparnis: 40%)</li><li>KPI-Dashboard Entwicklung für C-Level</li><li>Power BI erste intensive Erfahrung</li></ul>'
+                },
+                {
+                    id: 3,
+                    year: '2018-2020',
+                    title: 'Deutsche Post - Projektleiter',
+                    content: '<h2>📊 Deutsche Post - Projektleitung (2018-2020)</h2><p><strong>Senior IT Projektleiter</strong></p><ul><li>Migration komplexer ERP- und BI-Systeme</li><li>Agile Transformation: Scrum Master, Kanban Einführung</li><li>Stakeholder-Management in Großprojekten (100+ Beteiligte)</li><li>Key Learning: Kommunikation ist Schlüssel zum Erfolg</li></ul>'
+                },
+                {
+                    id: 4,
+                    year: '2020-Heute',
+                    title: 'Deutsche Post - Product Owner',
+                    content: '<h2>🚀 Deutsche Post - Product Owner (2020-Heute)</h2><p><strong>Product Owner & Senior Solution Architect</strong></p><ul><li>Verantwortung für 3-4 kritische zentrale IT-Lösungen</li><li>Budget: ~10 Mio. Euro p.a., Team: 25+ externe Partner</li><li><strong>KI & RPA Automatisierung:</strong> Process Mining, RPA-Workflows, ML-Modelle</li><li><strong>Power BI KPI-Steuerung:</strong> Echtzeit-Dashboards, Prognose-Modelle</li><li>Cloud Migration und Multi-Cloud-Strategie</li></ul>'
+                }
+            ]
+        };
+
+        function initializeFirebase() {
+            const config = {
+                apiKey: document.getElementById('apiKey').value,
+                authDomain: document.getElementById('authDomain').value,
+                databaseURL: document.getElementById('databaseURL').value,
+                projectId: document.getElementById('projectId').value,
+                storageBucket: document.getElementById('storageBucket').value,
+                messagingSenderId: document.getElementById('messagingSenderId').value,
+                appId: document.getElementById('appId').value
+            };
+
+            if (!config.apiKey || !config.authDomain || !config.databaseURL) {
+                showStatus('Bitte alle Felder ausfüllen!', 'error');
+                return;
+            }
+
+            try {
+                if (firebase.apps.length === 0) {
+                    firebase.initializeApp(config);
+                }
+                const database = firebase.database();
+                const dataRef = database.ref('presentations/data');
+
+                dataRef.set(defaultData, (err) => {
+                    if (err) {
+                        showStatus('❌ Fehler: ' + err.message, 'error');
+                    } else {
+                        showStatus('✅ Erfolgreich! Daten wurden in Firebase hochgeladen. Du kannst diese Seite jetzt schließen.', 'success');
+                    }
+                });
+            } catch (err) {
+                showStatus('❌ Fehler: ' + err.message, 'error');
+            }
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+        }
+    </script>
+</body>
+</html>
