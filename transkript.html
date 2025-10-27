@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transkript - Daniel Meiermann</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #00d4ff;
+            font-size: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px solid #00d4ff;
+            color: #ffd700;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn:hover {
+            background: rgba(0, 212, 255, 0.4);
+        }
+
+        .content {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            padding: 40px;
+            line-height: 1.8;
+            min-height: 600px;
+            font-size: 16px;
+        }
+
+        .content h2 {
+            color: #ffd700;
+            font-size: 1.8em;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .content h2:first-child {
+            margin-top: 0;
+        }
+
+        .content p {
+            margin-bottom: 15px;
+            color: #e0e0e0;
+        }
+
+        .content ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 15px;
+        }
+
+        .content li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .content li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .content strong {
+            color: #ffd700;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 10px 15px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid #00d4ff;
+            color: #ffd700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 212, 255, 0.4);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-counter {
+            text-align: center;
+            color: #00d4ff;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Transkript</h1>
+            <p>Daniel Meiermann - Meine Karriere</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="resetFont()">↺ Standard-Größe</button>
+            <button class="btn" onclick="decreaseFont()">− Kleiner</button>
+            <button class="btn" onclick="increaseFont()">+ Größer</button>
+            <div id="fontSize" style="padding: 10px 20px; background: rgba(255, 215, 0, 0.2); border-radius: 8px; color: #ffd700; font-weight: 600;">16px</div>
+        </div>
+
+        <div class="content" id="content"></div>
+
+        <div class="navigation">
+            <button class="nav-btn" onclick="previousPage()" id="prevBtn">← Zurück</button>
+            <button class="nav-btn" onclick="nextPage()" id="nextBtn">Weiter →</button>
+        </div>
+
+        <div class="page-counter">
+            <span id="pageNumber">1</span> / <span id="totalPages">1</span>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+    <script>
+        // ⚠️ WICHTIG: Ersetze diese Werte mit deinen Firebase Credentials
+const firebaseConfig = {
+  apiKey: "AIzaSyD1ifyOzWUOiN-_VmRhzBGkq1PsxUwfdqY",
+  authDomain: "danielmeiermann-8fbd8.firebaseapp.com",
+  databaseURL: "https://danielmeiermann-8fbd8-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "danielmeiermann-8fbd8",
+  storageBucket: "danielmeiermann-8fbd8.firebasestorage.app",
+  messagingSenderId: "641372578638",
+  appId: "1:641372578638:web:66f9c8e7fec71c26a3341f"
+};
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const dataRef = database.ref('presentations/data');
+    </script>
+        let stations = [];
+        let currentPage = 0;
+        let fontSize = 16;
+
+        async function loadData() {
+            try {
+                dataRef.once('value')
+                    .then(snapshot => {
+                        if (snapshot.exists()) {
+                            const data = snapshot.val();
+                            stations = data.stations || [];
+                            updateContent();
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Fehler beim Laden von Firebase:', err);
+                    });
+            } catch (err) {
+                console.error('Firebase nicht erreichbar:', err);
+            }
+        }
+
+        function updateContent() {
+            document.getElementById('totalPages').textContent = stations.length;
+            document.getElementById('pageNumber').textContent = currentPage + 1;
+            document.getElementById('prevBtn').disabled = currentPage === 0;
+            document.getElementById('nextBtn').disabled = currentPage === stations.length - 1;
+
+            const station = stations[currentPage];
+            document.getElementById('content').innerHTML = station.content;
+            document.getElementById('content').style.fontSize = fontSize + 'px';
+        }
+
+        function nextPage() {
+            if (currentPage < stations.length - 1) {
+                currentPage++;
+                updateContent();
+            }
+        }
+
+        function previousPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                updateContent();
+            }
+        }
+
+        function increaseFont() {
+            if (fontSize < 32) {
+                fontSize += 2;
+                document.getElementById('fontSize').textContent = fontSize + 'px';
+                updateContent();
+            }
+        }
+
+        function decreaseFont() {
+            if (fontSize > 12) {
+                fontSize -= 2;
+                document.getElementById('fontSize').textContent = fontSize + 'px';
+                updateContent();
+            }
+        }
+
+        function resetFont() {
+            fontSize = 16;
+            document.getElementById('fontSize').textContent = fontSize + 'px';
+            updateContent();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextPage();
+            } else if (e.key === 'ArrowLeft') {
+                previousPage();
+            }
+        });
+
+        setInterval(loadData, 2000);
+        loadData();
+    </script>
+</body>
+</html>

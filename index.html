@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selbstpräsentation - Daniel Meiermann</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .toolbar-top {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 999;
+        }
+
+        .toolbar-icon {
+            position: relative;
+            font-size: 1.2rem;
+            color: #ffd700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .toolbar-icon:hover {
+            transform: scale(1.15);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .icon-tooltip {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: #ffd700;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            margin-top: 10px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            border: 1px solid #ffd700;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            z-index: 1000;
+        }
+
+        .toolbar-icon:hover .icon-tooltip {
+            opacity: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #ffd700;
+            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .header .age {
+            font-size: 0.95rem;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #00d4ff;
+            font-weight: 500;
+        }
+
+        .desktop-layout {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .profile-section {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-image-wrapper {
+            width: 200px;
+            height: 200px;
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid #ffd700;
+            overflow: hidden;
+            background: #222;
+            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+        }
+
+        .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .skill-icons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .skill-icon {
+            position: relative;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(0, 212, 255, 0.15);
+            border: 2px solid #00d4ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffd700;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .skill-icon:hover {
+            background: rgba(0, 212, 255, 0.3);
+            transform: scale(1.15);
+        }
+
+        .skill-icon.active {
+            background: rgba(255, 215, 0, 0.3);
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .skill-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #ffd700;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            margin-bottom: 8px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            border: 1px solid #ffd700;
+        }
+
+        .skill-icon:hover .skill-tooltip {
+            opacity: 1;
+        }
+
+        .skill-content-display {
+            display: none;
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .skill-content-display.active {
+            display: block;
+        }
+
+        .skill-content-display h3 {
+            font-size: 1.3rem;
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .skill-content-display p {
+            color: #e0e0e0;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        .skill-content-display ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 15px;
+        }
+
+        .skill-content-display li {
+            color: #e0e0e0;
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .skill-content-display li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #00d4ff;
+        }
+
+        .werdegang-container {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .werdegang-title {
+            font-size: 1.5rem;
+            color: #ffd700;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .stations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+        }
+
+        .station {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #ffd700;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+        }
+
+        .station:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: rgba(255, 215, 0, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .station.active {
+            background: rgba(0, 212, 255, 0.3);
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .station-year {
+            font-size: 0.95rem;
+            color: #00d4ff;
+            font-weight: 700;
+        }
+
+        .station-text {
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+
+        .content-section {
+            display: none;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .content-section h2 {
+            font-size: 1.6rem;
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .content-section p {
+            color: #e0e0e0;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        .content-section ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 15px;
+        }
+
+        .content-section li {
+            color: #e0e0e0;
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .content-section li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #00d4ff;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .desktop-layout {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .stations-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar-top">
+        <a href="transkript.html" class="toolbar-icon">
+            <i class="fas fa-file-alt"></i>
+            <div class="icon-tooltip">Transkript</div>
+        </a>
+        <a href="admin.html" class="toolbar-icon">
+            <i class="fas fa-cog"></i>
+            <div class="icon-tooltip">Admin</div>
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1 id="headerName">Daniel Meiermann</h1>
+            <div class="age" id="headerAge">41 Jahre</div>
+            <p>Meine Karriere-Reise</p>
+        </div>
+
+        <div class="desktop-layout">
+            <div class="main-content">
+                <div class="profile-section">
+                    <div class="profile-image-wrapper">
+                        <div class="profile-image">
+                            <img src="profile.jpg" alt="Profil">
+                        </div>
+                    </div>
+                    <div class="skill-icons" id="skillIconsContainer"></div>
+                </div>
+
+                <div class="skill-content-display" id="skillContent"></div>
+
+                <div class="werdegang-container">
+                    <h3 class="werdegang-title">📈 Werdegang</h3>
+                    <div class="stations-grid" id="stationsGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="contentContainer" style="margin-top: 30px;"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+    <script>
+        // ⚠️ WICHTIG: Ersetze diese Werte mit deinen Firebase Credentials
+const firebaseConfig = {
+  apiKey: "AIzaSyD1ifyOzWUOiN-_VmRhzBGkq1PsxUwfdqY",
+  authDomain: "danielmeiermann-8fbd8.firebaseapp.com",
+  databaseURL: "https://danielmeiermann-8fbd8-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "danielmeiermann-8fbd8",
+  storageBucket: "danielmeiermann-8fbd8.firebasestorage.app",
+  messagingSenderId: "641372578638",
+  appId: "1:641372578638:web:66f9c8e7fec71c26a3341f"
+};
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const dataRef = database.ref('presentations/data');
+    </script>
+        let appData = {};
+        const skillContents = [];
+        let currentSkillIndex = null;
+        let currentStationIndex = null;
+
+        async function loadData() {
+            try {
+                dataRef.once('value')
+                    .then(snapshot => {
+                        if (snapshot.exists()) {
+                            appData = snapshot.val();
+                            renderPresentation();
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Fehler beim Laden von Firebase:', err);
+                    });
+            } catch (err) {
+                console.error('Firebase nicht erreichbar:', err);
+            }
+        }
+
+        function renderPresentation() {
+            const profile = appData.profile;
+            document.getElementById('headerName').textContent = profile.name;
+            document.getElementById('headerAge').textContent = profile.age;
+            document.querySelector('.profile-image img').src = profile.imageUrl;
+
+            const skillIconsContainer = document.getElementById('skillIconsContainer');
+            skillIconsContainer.innerHTML = appData.skills.map((skill, idx) => `
+                <div class="skill-icon" onclick="toggleSkill(${idx})">
+                    <i class="fas ${skill.icon}"></i>
+                    <div class="skill-tooltip">${skill.name}</div>
+                </div>
+            `).join('');
+
+            skillContents.length = 0;
+            appData.skills.forEach(skill => {
+                skillContents.push({
+                    title: skill.title,
+                    body: skill.content
+                });
+            });
+
+            const stationsGrid = document.getElementById('stationsGrid');
+            stationsGrid.innerHTML = appData.stations.map((station, idx) => `
+                <div class="station" onclick="toggleContent(${idx})">
+                    <div class="station-year">${station.year}</div>
+                    <div class="station-text">${station.title}</div>
+                </div>
+            `).join('');
+
+            const contentContainer = document.getElementById('contentContainer');
+            contentContainer.innerHTML = appData.stations.map((station, idx) => `
+                <div class="content-section" id="content${idx}">
+                    ${station.content}
+                </div>
+            `).join('');
+        }
+
+        function toggleSkill(index) {
+            const skillContent = document.getElementById('skillContent');
+            
+            if (currentSkillIndex === index) {
+                currentSkillIndex = null;
+                document.querySelectorAll('.skill-icon').forEach(el => el.classList.remove('active'));
+                skillContent.classList.remove('active');
+            } else {
+                currentSkillIndex = index;
+                document.querySelectorAll('.skill-icon').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.skill-icon')[index].classList.add('active');
+                skillContent.innerHTML = `<h3>${skillContents[index].title}</h3>${skillContents[index].body}`;
+                skillContent.classList.add('active');
+            }
+        }
+
+        function toggleContent(index) {
+            if (currentStationIndex === index) {
+                currentStationIndex = null;
+                document.querySelectorAll('.station').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+            } else {
+                currentStationIndex = index;
+                document.querySelectorAll('.station').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.station')[index].classList.add('active');
+                document.getElementById(`content${index}`).classList.add('active');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                currentSkillIndex = null;
+                currentStationIndex = null;
+                document.querySelectorAll('.skill-icon').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.station').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+                document.getElementById('skillContent').classList.remove('active');
+            }
+        });
+
+        setInterval(() => {
+            loadData();
+        }, 2000);
+
+        loadData();
+    </script>
+</body>
+</html>

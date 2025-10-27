@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Daniel Meiermann</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.snow.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid #ffd700;
+            border-radius: 15px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid transparent;
+            color: #00d4ff;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .tab-btn.active {
+            background: rgba(0, 212, 255, 0.3);
+            border-color: #00d4ff;
+            color: #ffd700;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            font-size: 1.6rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ffd700;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+        }
+
+        .ql-toolbar {
+            background: rgba(0, 212, 255, 0.1) !important;
+            border: none !important;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3) !important;
+        }
+
+        .ql-container {
+            background: rgba(0, 0, 0, 0.2);
+            border: none !important;
+            min-height: 200px;
+        }
+
+        .ql-editor {
+            color: #e0e0e0;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .sortable-item {
+            background: rgba(0, 212, 255, 0.15);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: grab;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .sortable-item:hover {
+            background: rgba(0, 212, 255, 0.25);
+        }
+
+        .drag-handle {
+            color: #00d4ff;
+            font-size: 1.2rem;
+        }
+
+        .sortable-item-content {
+            flex: 1;
+        }
+
+        .sortable-item-content h3 {
+            color: #ffd700;
+            font-size: 1.1rem;
+        }
+
+        .sortable-item-content p {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .sortable-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 35px;
+            height: 35px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .icon-btn:hover {
+            background: rgba(0, 212, 255, 0.3);
+        }
+
+        .icon-btn.danger {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .icon-btn.danger:hover {
+            background: rgba(255, 107, 107, 0.3);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px solid #00d4ff;
+            color: #ffd700;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn:hover {
+            background: rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-success {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: #4caf50;
+            color: #4caf50;
+        }
+
+        .btn-success:hover {
+            background: rgba(76, 175, 80, 0.4);
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            display: block;
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+            color: #4caf50;
+        }
+
+        .sortable-list {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ Admin Panel</h1>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('profile')">👤 Profil</button>
+            <button class="tab-btn" onclick="switchTab('skills')">💡 Kompetenzen</button>
+            <button class="tab-btn" onclick="switchTab('werdegang')">📈 Werdegang</button>
+        </div>
+
+        <div id="profile" class="tab-content active">
+            <div class="section">
+                <h2>👤 Profilbereich</h2>
+                
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="profileName">
+                </div>
+
+                <div class="form-group">
+                    <label>Rolle/Position</label>
+                    <input type="text" id="profileRole">
+                </div>
+
+                <div class="form-group">
+                    <label>Alter & Beschreibung</label>
+                    <input type="text" id="profileAge">
+                </div>
+
+                <div class="form-group">
+                    <label>Profilbild URL</label>
+                    <input type="text" id="profileImageUrl">
+                </div>
+
+                <button class="btn btn-success" onclick="saveProfile()">
+                    <i class="fas fa-save"></i> Speichern
+                </button>
+                
+                <div class="message success" id="profileMessage">✓ Gespeichert</div>
+            </div>
+        </div>
+
+        <div id="skills" class="tab-content">
+            <div class="section">
+                <h2>💡 Kompetenzen</h2>
+                
+                <div class="sortable-list" id="skillsList"></div>
+
+                <button class="btn btn-success" style="margin-top: 20px;" onclick="saveSkills()">
+                    <i class="fas fa-save"></i> Speichern
+                </button>
+                
+                <div class="message success" id="skillsMessage">✓ Gespeichert</div>
+            </div>
+        </div>
+
+        <div id="werdegang" class="tab-content">
+            <div class="section">
+                <h2>📈 Werdegang</h2>
+                
+                <button class="btn btn-success" style="margin-bottom: 20px;" onclick="addStation()">
+                    <i class="fas fa-plus"></i> Neue Station
+                </button>
+                
+                <div class="sortable-list" id="stationsList"></div>
+
+                <button class="btn btn-success" style="margin-top: 20px;" onclick="saveStations()">
+                    <i class="fas fa-save"></i> Speichern
+                </button>
+                
+                <div class="message success" id="stationsMessage">✓ Gespeichert</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+    <script>
+        // ⚠️ WICHTIG: Ersetze diese Werte mit deinen Firebase Credentials
+const firebaseConfig = {
+  apiKey: "AIzaSyD1ifyOzWUOiN-_VmRhzBGkq1PsxUwfdqY",
+  authDomain: "danielmeiermann-8fbd8.firebaseapp.com",
+  databaseURL: "https://danielmeiermann-8fbd8-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "danielmeiermann-8fbd8",
+  storageBucket: "danielmeiermann-8fbd8.firebasestorage.app",
+  messagingSenderId: "641372578638",
+  appId: "1:641372578638:web:66f9c8e7fec71c26a3341f"
+};
+
+        // Firebase initialisieren
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const dataRef = database.ref('presentations/data');
+    </script>
+        let appData = {};
+        let draggedItem = null;
+
+        async function loadData() {
+            try {
+                dataRef.once('value')
+                    .then(snapshot => {
+                        if (snapshot.exists()) {
+                            appData = snapshot.val();
+                        } else {
+                            console.log('Keine Daten in Firebase, verwende Defaults');
+                            appData = getDefaultData();
+                        }
+                        renderUI();
+                    })
+                    .catch(err => {
+                        console.error('Fehler beim Laden von Firebase:', err);
+                        appData = getDefaultData();
+                        renderUI();
+                    });
+            } catch (err) {
+                console.error('Firebase nicht erreichbar:', err);
+                appData = getDefaultData();
+                renderUI();
+            }
+        }
+
+        function getDefaultData() {
+            return {
+                profile: {
+                    name: 'Daniel Meiermann',
+                    role: 'Senior IT Product Owner',
+                    age: '41 Jahre | Senior IT Product Owner & Solution Architect',
+                    imageUrl: 'profile.jpg'
+                },
+                skills: [
+                    { id: 0, icon: 'fa-chart-bar', name: 'Kompetenzen', title: '💡 Kompetenzen & Skills', content: '<p>Inhalte...</p>' }
+                ],
+                stations: [
+                    { id: 0, year: '2004-2010', title: 'FH Gelsenkirchen', content: '<h2>FH Gelsenkirchen</h2><p>Inhalte...</p>' }
+                ]
+            };
+        }
+
+        async function saveData() {
+            try {
+                dataRef.set(appData, (err) => {
+                    if (err) {
+                        console.error('Fehler beim Speichern auf Firebase:', err);
+                        showMessage('profileMessage');
+                        return false;
+                    } else {
+                        console.log('✓ Daten auf Firebase gespeichert');
+                        showMessage('profileMessage');
+                        return true;
+                    }
+                });
+            } catch (err) {
+                console.error('Firebase Error:', err);
+                showMessage('profileMessage');
+                return false;
+            }
+        }
+
+        function renderUI() {
+            renderProfile();
+            renderSkills();
+            renderStations();
+        }
+
+        function renderProfile() {
+            document.getElementById('profileName').value = appData.profile.name;
+            document.getElementById('profileRole').value = appData.profile.role;
+            document.getElementById('profileAge').value = appData.profile.age;
+            document.getElementById('profileImageUrl').value = appData.profile.imageUrl;
+        }
+
+        function renderSkills() {
+            const container = document.getElementById('skillsList');
+            container.innerHTML = appData.skills.map((skill, idx) => `
+                <div class="sortable-item" draggable="true" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event, 'skills', ${idx})">
+                    <div class="drag-handle">≡</div>
+                    <div class="sortable-item-content">
+                        <h3><i class="fas ${skill.icon}"></i> ${skill.name}</h3>
+                        <p>${skill.title}</p>
+                    </div>
+                    <button class="icon-btn" onclick="editSkill(${idx})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderStations() {
+            const container = document.getElementById('stationsList');
+            container.innerHTML = appData.stations.map((station, idx) => `
+                <div class="sortable-item" draggable="true" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event, 'stations', ${idx})">
+                    <div class="drag-handle">≡</div>
+                    <div class="sortable-item-content">
+                        <h3>${station.year} - ${station.title}</h3>
+                    </div>
+                    <button class="icon-btn" onclick="editSkill(${idx})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="icon-btn danger" onclick="deleteStation(${idx})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function dragStart(e) {
+            draggedItem = e.target.closest('.sortable-item');
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+        }
+
+        function dragDrop(e, type, index) {
+            e.preventDefault();
+            const targetItem = e.target.closest('.sortable-item');
+            if (!targetItem || targetItem === draggedItem) return;
+
+            const array = type === 'skills' ? appData.skills : appData.stations;
+            const items = document.querySelectorAll(`#${type === 'skills' ? 'skillsList' : 'stationsList'} .sortable-item`);
+            const draggedIndex = Array.from(items).indexOf(draggedItem);
+            
+            if (draggedIndex !== -1 && draggedIndex !== index) {
+                const temp = array[draggedIndex];
+                array[draggedIndex] = array[index];
+                array[index] = temp;
+                
+                if (type === 'skills') {
+                    renderSkills();
+                } else {
+                    renderStations();
+                }
+                saveData();
+            }
+        }
+
+        function editSkill(idx) {
+            closeModal();
+            const skill = appData.skills[idx];
+            const modal = createModal(`Bearbeite: ${skill.name}`);
+            
+            modal.innerHTML += `
+                <div class="form-group">
+                    <label style="color: #ffd700;">Titel</label>
+                    <input type="text" id="skillTitle" value="${skill.title}" style="width: 100%; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #ffd700; display: block; margin-bottom: 8px;">Inhalt</label>
+                    <div id="skillEditor" style="height: 250px;"></div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button onclick="saveSkillEdit(${idx})" style="flex: 1; padding: 10px; background: rgba(76, 175, 80, 0.3); border: 2px solid #4caf50; color: #4caf50; border-radius: 6px; cursor: pointer; font-weight: 600;">Speichern</button>
+                    <button onclick="closeModal()" style="flex: 1; padding: 10px; background: rgba(255, 107, 107, 0.3); border: 2px solid #ff6b6b; color: #ff6b6b; border-radius: 6px; cursor: pointer; font-weight: 600;">Abbrechen</button>
+                </div>
+            `;
+            
+            const editor = new Quill('#skillEditor', {
+                theme: 'snow',
+                modules: { toolbar: ['bold', 'italic', 'underline', { 'list': 'ordered' }, { 'list': 'bullet' }] }
+            });
+            editor.root.innerHTML = skill.content;
+            window.currentEditor = editor;
+        }
+
+        function saveSkillEdit(idx) {
+            appData.skills[idx].title = document.getElementById('skillTitle').value;
+            appData.skills[idx].content = window.currentEditor.root.innerHTML;
+            renderSkills();
+            saveData();
+            closeModal();
+        }
+
+        function editStation(idx) {
+            closeModal();
+            const station = appData.stations[idx];
+            const modal = createModal(`Bearbeite: ${station.title}`);
+            
+            modal.innerHTML += `
+                <div class="form-group">
+                    <label style="color: #ffd700;">Jahr</label>
+                    <input type="text" id="stationYear" value="${station.year}" style="width: 100%; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0;">
+                </div>
+                
+                <div class="form-group">
+                    <label style="color: #ffd700;">Titel</label>
+                    <input type="text" id="stationTitle" value="${station.title}" style="width: 100%; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px; color: #e0e0e0;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #ffd700; display: block; margin-bottom: 8px;">Inhalt</label>
+                    <div id="stationEditor" style="height: 250px;"></div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button onclick="saveStationEdit(${idx})" style="flex: 1; padding: 10px; background: rgba(76, 175, 80, 0.3); border: 2px solid #4caf50; color: #4caf50; border-radius: 6px; cursor: pointer; font-weight: 600;">Speichern</button>
+                    <button onclick="closeModal()" style="flex: 1; padding: 10px; background: rgba(255, 107, 107, 0.3); border: 2px solid #ff6b6b; color: #ff6b6b; border-radius: 6px; cursor: pointer; font-weight: 600;">Abbrechen</button>
+                </div>
+            `;
+            
+            const editor = new Quill('#stationEditor', {
+                theme: 'snow',
+                modules: { toolbar: ['bold', 'italic', 'underline', { 'list': 'ordered' }, { 'list': 'bullet' }] }
+            });
+            editor.root.innerHTML = station.content;
+            window.currentEditor = editor;
+        }
+
+        function saveStationEdit(idx) {
+            appData.stations[idx].year = document.getElementById('stationYear').value;
+            appData.stations[idx].title = document.getElementById('stationTitle').value;
+            appData.stations[idx].content = window.currentEditor.root.innerHTML;
+            renderStations();
+            saveData();
+            closeModal();
+        }
+
+        function deleteStation(idx) {
+            if (confirm('Station wirklich löschen?')) {
+                appData.stations.splice(idx, 1);
+                renderStations();
+                saveData();
+            }
+        }
+
+        function addStation() {
+            const newId = Math.max(...appData.stations.map(s => s.id), -1) + 1;
+            appData.stations.push({
+                id: newId,
+                year: 'YYYY-YYYY',
+                title: 'Neue Position',
+                content: '<p>Beschreibung...</p>'
+            });
+            renderStations();
+            editStation(appData.stations.length - 1);
+        }
+
+        function saveProfile() {
+            appData.profile.name = document.getElementById('profileName').value;
+            appData.profile.role = document.getElementById('profileRole').value;
+            appData.profile.age = document.getElementById('profileAge').value;
+            appData.profile.imageUrl = document.getElementById('profileImageUrl').value;
+            saveData();
+        }
+
+        function saveSkills() {
+            saveData();
+            showMessage('skillsMessage');
+        }
+
+        function saveStations() {
+            saveData();
+            showMessage('stationsMessage');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showMessage(elementId) {
+            const msg = document.getElementById(elementId);
+            msg.style.display = 'block';
+            setTimeout(() => { msg.style.display = 'none'; }, 2000);
+        }
+
+        function closeModal() {
+            document.querySelectorAll('[data-modal]').forEach(m => m.remove());
+        }
+
+        function createModal(title) {
+            document.querySelectorAll('[data-modal]').forEach(m => m.remove());
+            
+            const modal = document.createElement('div');
+            modal.setAttribute('data-modal', 'true');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.8); display: flex; align-items: center;
+                justify-content: center; z-index: 2000; padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: #1a1a3e; border: 2px solid #00d4ff; border-radius: 15px;
+                padding: 30px; max-width: 700px; width: 100%; max-height: 80vh;
+                overflow-y: auto; color: #e0e0e0;
+            `;
+            
+            content.innerHTML = `<h2 style="color: #ffd700; margin-bottom: 20px;">${title}</h2>`;
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            return content;
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
