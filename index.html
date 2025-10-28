@@ -238,7 +238,8 @@
             margin-bottom: 12px;
         }
 
-        .skill-content-display ul {
+        .skill-content-display ul,
+        .skill-content-display ol {
             list-style: none;
             padding-left: 0;
         }
@@ -248,13 +249,15 @@
             padding-left: 20px;
             margin-bottom: 8px;
             position: relative;
+            list-style: none;
         }
 
         .skill-content-display li:before {
-            content: "→";
+            content: "•";
             position: absolute;
             left: 0;
             color: #00d4ff;
+            font-weight: bold;
         }
 
         /* WERDEGANG */
@@ -334,7 +337,7 @@
             font-size: 1rem;
             color: #00d4ff;
             margin-bottom: auto;
-            margin-top: 5px;
+            margin-top: 10px;
             flex-shrink: 0;
         }
 
@@ -634,6 +637,15 @@
             `}).join('');
         }
 
+        function formatListsInContent(html) {
+            // Konvertiere ol/ul zu ul 
+            html = html.replace(/<ol>/g, '<ul>');
+            html = html.replace(/<\/ol>/g, '</ul>');
+            
+            // Die CSS kümmert sich um die Pfeile
+            return html;
+        }
+
         function toggleSkill(index) {
             const skillContent = document.getElementById('skillContent');
             
@@ -645,7 +657,8 @@
                 currentSkillIndex = index;
                 document.querySelectorAll('.skill-icon').forEach(el => el.classList.remove('active'));
                 document.querySelectorAll('.skill-icon')[index].classList.add('active');
-                skillContent.innerHTML = `<h3>${skillContents[index].title}</h3>${skillContents[index].body}`;
+                const formattedBody = formatListsInContent(skillContents[index].body);
+                skillContent.innerHTML = `<h3>${skillContents[index].title}</h3>${formattedBody}`;
                 skillContent.classList.add('active');
             }
         }

@@ -9,6 +9,28 @@
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.snow.css" rel="stylesheet">
     <style>
+        /* Quill Custom Color Palette */
+        .ql-snow .ql-picker.ql-color .ql-picker-item::before,
+        .ql-snow .ql-picker.ql-background .ql-picker-item::before {
+            width: 15px;
+            height: 15px;
+        }
+        
+        /* Füge custom Farben zur Palette hinzu */
+        .ql-snow .ql-color .ql-picker-item[data-value="#ffd700"]::before {
+            background-color: #ffd700;
+        }
+        .ql-snow .ql-color .ql-picker-item[data-value="#00d4ff"]::before {
+            background-color: #00d4ff;
+        }
+        .ql-snow .ql-color .ql-picker-item[data-value="#4caf50"]::before {
+            background-color: #4caf50;
+        }
+        .ql-snow .ql-color .ql-picker-item[data-value="#ff6b6b"]::before {
+            background-color: #ff6b6b;
+        }
+    </style>
+    <style>
         * {
             margin: 0;
             padding: 0;
@@ -713,9 +735,12 @@
                     const editor = new Quill('#stationEditor', {
                         theme: 'snow',
                         modules: { 
-                            toolbar: ['bold', 'italic', 'underline', { 'list': 'bullet' }] 
+                            toolbar: {
+                                container: ['bold', 'italic', 'underline', { 'list': 'bullet' }, { 'color': ['#ffffff', '#000000', '#ffd700', '#00d4ff', '#4caf50', '#ff6b6b', '#e0e0e0'] }, { 'background': ['#ffffff', '#000000', '#ffd700', '#00d4ff', '#4caf50', '#ff6b6b'] }]
+                            }
                         }
                     });
+                    
                     editor.root.innerHTML = station.content;
                     window.currentStationEditor = editor;
                     window.currentStationIdx = idx;
@@ -892,9 +917,12 @@
                     const editor = new Quill('#skillEditor', {
                         theme: 'snow',
                         modules: { 
-                            toolbar: ['bold', 'italic', 'underline', { 'list': 'bullet' }] 
+                            toolbar: {
+                                container: ['bold', 'italic', 'underline', { 'list': 'bullet' }, { 'color': ['#ffffff', '#000000', '#ffd700', '#00d4ff', '#4caf50', '#ff6b6b', '#e0e0e0'] }, { 'background': ['#ffffff', '#000000', '#ffd700', '#00d4ff', '#4caf50', '#ff6b6b'] }]
+                            }
                         }
                     });
+                    
                     editor.root.innerHTML = skill.content;
                     window.currentEditor = editor;
                 } catch (err) {
@@ -914,6 +942,10 @@
         function updateHighlightIcon() {
             // Icon wird automatisch beim Rendern gesetzt - nichts zu tun
         }
+
+        // Registriere custom color formats mit Hexcode
+        Quill.register(Quill.import('formats/color'), true);
+        Quill.register(Quill.import('formats/background'), true);
 
         function saveStationEdit(idx) {
             if (appData.stations[idx].type === 'highlight') {
@@ -1077,9 +1109,12 @@
                     const editor = new Quill('#highlightEditor', {
                         theme: 'snow',
                         modules: { 
-                            toolbar: ['bold', 'italic', 'underline', { 'list': 'bullet' }] 
+                            toolbar: {
+                                container: ['bold', 'italic', 'underline', { 'list': 'bullet' }, { 'color': ['#ffffff', '#000000', '#ffd700', '#00d4ff', '#4caf50', '#ff6b6b', '#e0e0e0'] }, { 'background': ['#ffffff', '#000000', '#ffd700', '#00d4ff', '#4caf50', '#ff6b6b'] }]
+                            }
                         }
                     });
+                    
                     editor.root.innerHTML = highlight.content;
                     window.currentHighlightEditor = editor;
                 } catch (err) {
