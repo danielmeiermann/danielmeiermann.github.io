@@ -379,6 +379,7 @@
             <button class="tab-btn active" onclick="switchTab('profile')">👤 Profil</button>
             <button class="tab-btn" onclick="switchTab('skills')">💡 Kompetenzen</button>
             <button class="tab-btn" onclick="switchTab('werdegang')">📈 Werdegang & Highlights</button>
+            <button class="tab-btn" onclick="switchTab('transcript')">📄 Transkript</button>
         </div>
 
         <div id="profile" class="tab-content active">
@@ -449,6 +450,36 @@
                 <div class="message success" id="allStationsMessage">✓ Gespeichert</div>
             </div>
         </div>
+
+        <div id="transcript" class="tab-content">
+            <div class="section">
+                <h2>📄 Transkript</h2>
+                
+                <div style="display: grid; gap: 30px;">
+                    <!-- Kompetenzen Übersicht -->
+                    <div>
+                        <h3 style="color: #00d4ff; margin-bottom: 15px;">💡 Kompetenzen Übersicht</h3>
+                        <div id="transcriptSkills" style="display: grid; gap: 10px;"></div>
+                    </div>
+
+                    <!-- Werdegang Übersicht -->
+                    <div>
+                        <h3 style="color: #00d4ff; margin-bottom: 15px;">📈 Werdegang Übersicht</h3>
+                        <div id="transcriptStations" style="display: grid; gap: 10px;"></div>
+                    </div>
+
+                    <!-- Notizen -->
+                    <div>
+                        <h3 style="color: #00d4ff; margin-bottom: 15px;">📝 Private Notizen (nicht öffentlich)</h3>
+                        <textarea id="transcriptNotes" placeholder="Notizen hinzufügen..." style="width: 100%; min-height: 200px; padding: 15px; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; color: #e0e0e0; font-family: 'Inter', sans-serif; font-size: 14px; resize: vertical;"></textarea>
+                        <button class="btn btn-success" style="margin-top: 15px;" onclick="saveTranscriptNotes()">
+                            <i class="fas fa-save"></i> Notizen speichern
+                        </button>
+                        <div class="message success" id="transcriptMessage">✓ Gespeichert</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -511,6 +542,93 @@
         let appData = {};
         let draggedItem = null;
         let highlightEditors = {};
+
+        function renderTranscript() {
+            // Render Skills
+            const skillsContainer = document.getElementById('transcriptSkills');
+            skillsContainer.innerHTML = (appData.skills || []).map((skill, idx) => `
+                <div style="border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 8px; overflow: hidden;">
+                    <div onclick="toggleTranscriptItem('skill', ${idx})" style="padding: 12px; background: rgba(0, 212, 255, 0.1); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: #ffd700;">${skill.title}</strong><br>
+                            <small style="color: #999;">Kategorie: ${skill.name}</small>
+                        </div>
+                        <span style="color: #00d4ff; font-size: 20px;" id="toggleIcon-skill-${idx}">▶</span>
+                    </div>
+                    <div id="content-skill-${idx}" style="display: none; padding: 15px; background: rgba(0, 212, 255, 0.05); border-top: 1px solid rgba(0, 212, 255, 0.2);">
+                        <div style="color: #e0e0e0; margin-bottom: 15px; line-height: 1.6;">${skill.content}</div>
+                        <textarea placeholder="Notizen zu dieser Kompetenz..." class="transcript-notes" data-type="skill" data-idx="${idx}" style="width: 100%; min-height: 100px; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 6px; color: #e0e0e0; font-family: 'Inter', sans-serif; font-size: 13px; resize: vertical;">${(appData.skillNotes && appData.skillNotes[idx]) || ''}</textarea>
+                    </div>
+                </div>
+            `).join('');
+
+            // Render Stations & Highlights
+            const stationsContainer = document.getElementById('transcriptStations');
+            stationsContainer.innerHTML = (appData.stations || []).map((station, idx) => `
+                <div style="border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 8px; overflow: hidden;">
+                    <div onclick="toggleTranscriptItem('station', ${idx})" style="padding: 12px; background: rgba(0, 212, 255, 0.1); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: ${station.type === 'highlight' && station.sentiment === 'negative' ? '#ff6b6b' : '#ffd700'};">
+                                ${station.type === 'highlight' ? (station.sentiment === 'negative' ? '⚡' : '⭐') : '📍'} 
+                                ${station.year} - ${station.title}
+                            </strong><br>
+                            <small style="color: #999;">Typ: ${station.type === 'highlight' ? 'Highlight (' + station.sentiment + ')' : 'Station'}</small>
+                        </div>
+                        <span style="color: #00d4ff; font-size: 20px;" id="toggleIcon-station-${idx}">▶</span>
+                    </div>
+                    <div id="content-station-${idx}" style="display: none; padding: 15px; background: rgba(0, 212, 255, 0.05); border-top: 1px solid rgba(0, 212, 255, 0.2);">
+                        <div style="color: #e0e0e0; margin-bottom: 15px; line-height: 1.6;">${station.content}</div>
+                        <textarea placeholder="Notizen zu dieser Station..." class="transcript-notes" data-type="station" data-idx="${idx}" style="width: 100%; min-height: 100px; padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 6px; color: #e0e0e0; font-family: 'Inter', sans-serif; font-size: 13px; resize: vertical;">${(appData.stationNotes && appData.stationNotes[idx]) || ''}</textarea>
+                    </div>
+                </div>
+            `).join('');
+
+            // Bind Notizen Auto-Save
+            document.querySelectorAll('.transcript-notes').forEach(textarea => {
+                textarea.addEventListener('blur', saveTranscriptItemNotes);
+            });
+
+            // Load General Notes
+            const notesField = document.getElementById('transcriptNotes');
+            notesField.value = appData.transcriptNotes || '';
+        }
+
+        function toggleTranscriptItem(type, idx) {
+            const content = document.getElementById(`content-${type}-${idx}`);
+            const icon = document.getElementById(`toggleIcon-${type}-${idx}`);
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▶';
+            }
+        }
+
+        function saveTranscriptItemNotes(e) {
+            const textarea = e.target;
+            const type = textarea.dataset.type;
+            const idx = parseInt(textarea.dataset.idx);
+            const notes = textarea.value;
+
+            if (type === 'skill') {
+                if (!appData.skillNotes) appData.skillNotes = {};
+                appData.skillNotes[idx] = notes;
+            } else if (type === 'station') {
+                if (!appData.stationNotes) appData.stationNotes = {};
+                appData.stationNotes[idx] = notes;
+            }
+
+            saveData();
+        }
+
+        function saveTranscriptNotes() {
+            const notes = document.getElementById('transcriptNotes').value;
+            appData.transcriptNotes = notes;
+            saveData();
+            showMessage('transcriptMessage');
+        }
 
         async function loadData() {
             try {
@@ -604,6 +722,7 @@
             renderProfile();
             renderSkills();
             renderAllStations();
+            renderTranscript();
         }
 
         function renderProfile() {
@@ -616,7 +735,7 @@
         function renderSkills() {
             const container = document.getElementById('skillsList');
             container.innerHTML = appData.skills.map((skill, idx) => `
-                <div class="sortable-item" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="dragDrop(event, 'skills', ${idx})">
+                <div class="sortable-item" draggable="true" data-id="${skill.id}" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="event.preventDefault(); event.dataTransfer.dropEffect='move';" ondrop="dragDropSkill(event)">
                     <div class="drag-handle">≡</div>
                     <div class="sortable-item-content">
                         <h3><i class="fas ${skill.icon}"></i> ${skill.name}</h3>
@@ -634,7 +753,7 @@
             const container = document.getElementById('allStationsList');
             
             container.innerHTML = allStations.map((station, idx) => `
-                <div class="sortable-item" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="dragOver(event)" ondrop="dragDrop(event, 'allStations', ${idx})">
+                <div class="sortable-item" draggable="true" data-id="${station.id}" ondragstart="dragStart(event)" ondragend="dragEnd(event)" ondragover="event.preventDefault(); event.dataTransfer.dropEffect='move';" ondrop="dragDropStations(event)">
                     <div class="drag-handle">≡</div>
                     <div class="sortable-item-content">
                         <h3 style="color: ${station.type === 'highlight' && station.sentiment === 'negative' ? '#ff6b6b' : '#00d4ff'}">
@@ -798,11 +917,117 @@
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        function dragDrop(e, type, dropIndex) {
+        function dragDropSkill(e) {
             e.preventDefault();
             e.stopPropagation();
             
-            console.log('dragDrop aufgerufen mit type:', type, 'dropIndex:', dropIndex);
+            if (!draggedItem) return;
+            
+            // Reset styles sofort
+            draggedItem.removeAttribute('dragging');
+            draggedItem.style.opacity = '1';
+            draggedItem.style.transform = 'scale(1)';
+            
+            const draggedId = parseInt(draggedItem.dataset.id);
+            const dropTarget = e.target.closest('.sortable-item');
+            if (!dropTarget) {
+                draggedItem = null;
+                return;
+            }
+            
+            const dropId = parseInt(dropTarget.dataset.id);
+            
+            if (draggedId === dropId) {
+                draggedItem = null;
+                return;
+            }
+            
+            // Finde Indizes
+            const draggedIdx = appData.skills.findIndex(s => s.id === draggedId);
+            const dropIdx = appData.skills.findIndex(s => s.id === dropId);
+            
+            console.log('DRAG: draggedIdx:', draggedIdx, 'dropIdx:', dropIdx);
+            
+            if (draggedIdx === -1 || dropIdx === -1) {
+                draggedItem = null;
+                return;
+            }
+            
+            // Swap
+            const temp = appData.skills[draggedIdx];
+            appData.skills.splice(draggedIdx, 1);
+            appData.skills.splice(dropIdx, 0, temp);
+            
+            // Update sortOrder
+            appData.skills.forEach((item, idx) => {
+                item.sortOrder = idx;
+                console.log(`Skill ${item.title}: sortOrder = ${idx}`);
+            });
+            
+            console.log('Nach Drag - Skills:', appData.skills.map(s => ({title: s.title, sortOrder: s.sortOrder})));
+            
+            renderSkills();
+            saveData();
+            draggedItem = null;
+        }
+
+        function dragDropStations(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (!draggedItem) return;
+            
+            // Reset styles sofort
+            draggedItem.removeAttribute('dragging');
+            draggedItem.style.opacity = '1';
+            draggedItem.style.transform = 'scale(1)';
+            
+            const draggedId = parseInt(draggedItem.dataset.id);
+            const dropTarget = e.target.closest('.sortable-item');
+            if (!dropTarget) {
+                draggedItem = null;
+                return;
+            }
+            
+            const dropId = parseInt(dropTarget.dataset.id);
+            
+            if (draggedId === dropId) {
+                draggedItem = null;
+                return;
+            }
+            
+            // Finde Indizes
+            const draggedIdx = appData.stations.findIndex(s => s.id === draggedId);
+            const dropIdx = appData.stations.findIndex(s => s.id === dropId);
+            
+            console.log('DRAG: draggedIdx:', draggedIdx, 'dropIdx:', dropIdx);
+            
+            if (draggedIdx === -1 || dropIdx === -1) {
+                draggedItem = null;
+                return;
+            }
+            
+            // Swap
+            const temp = appData.stations[draggedIdx];
+            appData.stations.splice(draggedIdx, 1);
+            appData.stations.splice(dropIdx, 0, temp);
+            
+            // Update sortOrder
+            appData.stations.forEach((item, idx) => {
+                item.sortOrder = idx;
+                console.log(`Station ${item.title}: sortOrder = ${idx}`);
+            });
+            
+            console.log('Nach Drag - Stations:', appData.stations.map(s => ({title: s.title, sortOrder: s.sortOrder})));
+            
+            renderAllStations();
+            saveData();
+            draggedItem = null;
+        }
+
+        function dragDrop(e, type, dropIndex) {
+            e.preventDefault();
+            e.stopPropagation();
             
             // Reset drag styles
             if (draggedItem) {
@@ -812,52 +1037,36 @@
             }
             
             if (!draggedItem) {
-                console.log('Kein draggedItem!');
                 return;
             }
 
-            // Finde den tatsächlichen Index des gezogenen Elements in der aktuellen Liste
             const containerId = type === 'skills' ? 'skillsList' : 'allStationsList';
             const items = document.querySelectorAll(`#${containerId} .sortable-item`);
             const draggedIndex = Array.from(items).indexOf(draggedItem);
             
-            console.log('draggedIndex:', draggedIndex, 'dropIndex:', dropIndex, 'items.length:', items.length);
-            
-            if (draggedIndex === -1) {
-                console.log('Gezogenes Element nicht gefunden!');
-                draggedItem = null;
-                return;
-            }
-            
-            if (draggedIndex === dropIndex) {
-                console.log('Gleicher Index, nichts zu tun');
+            if (draggedIndex === -1 || draggedIndex === dropIndex) {
                 draggedItem = null;
                 return;
             }
 
-            let array;
+            let array = type === 'skills' ? appData.skills : appData.stations;
             
-            if (type === 'skills') {
-                array = appData.skills;
-            } else {
-                array = appData.stations;
+            // Berechne die korrekte Drop-Position
+            // Wenn dropIndex > draggedIndex, dann müssen wir -1 machen weil splice den Index verschiebt
+            let newIndex = dropIndex;
+            if (draggedIndex < dropIndex) {
+                newIndex = dropIndex - 1;
             }
             
-            console.log('Vor Swap - Array:', array.map(a => ({id: a.id, title: a.title})));
-            
-            // Swap
-            const temp = array[draggedIndex];
+            // Array Umordnung
+            const draggedElement = array[draggedIndex];
             array.splice(draggedIndex, 1);
-            array.splice(dropIndex, 0, temp);
+            array.splice(newIndex, 0, draggedElement);
             
-            console.log('Nach Swap - Array:', array.map(a => ({id: a.id, title: a.title})));
-            
-            // Setze sortOrder
+            // Update sortOrder
             array.forEach((item, idx) => {
                 item.sortOrder = idx;
             });
-            
-            console.log('Nach sortOrder - Array:', array.map(a => ({id: a.id, title: a.title, sortOrder: a.sortOrder})));
             
             // Re-render
             if (type === 'skills') {
