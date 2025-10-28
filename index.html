@@ -1,698 +1,921 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="googlebot" content="noindex, nofollow" />
+    <meta name="googlebot-news" content="noindex, nofollow" />
+    <meta name="description" content="" />
     <title>Selbstpräsentation - Daniel Meiermann</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
-            min-height: 100vh;
-            padding: 20px;
-            overflow-x: hidden;
-        }
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+        min-height: 100vh;
+        padding: 20px;
+        overflow-x: hidden;
+      }
 
+      /* PASSWORD SCREEN */
+      .password-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+
+      .password-box {
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px solid #ffd700;
+        border-radius: 15px;
+        padding: 40px;
+        max-width: 400px;
+        width: 100%;
+        box-shadow: 0 8px 32px rgba(255, 215, 0, 0.2);
+        text-align: center;
+      }
+
+      .password-box h1 {
+        color: #ffd700;
+        margin-bottom: 15px;
+        font-size: 1.8rem;
+      }
+
+      .password-box p {
+        color: #00d4ff;
+        margin-bottom: 30px;
+        font-size: 0.95rem;
+      }
+
+      .password-box input {
+        width: 100%;
+        padding: 12px;
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 8px;
+        color: #e0e0e0;
+        font-family: inherit;
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+      }
+
+      .password-box input:focus {
+        outline: none;
+        background: rgba(0, 212, 255, 0.2);
+        border-color: #00d4ff;
+      }
+
+      .password-box button {
+        width: 100%;
+        padding: 12px;
+        background: rgba(255, 215, 0, 0.2);
+        border: 2px solid #ffd700;
+        color: #ffd700;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+      }
+
+      .password-box button:hover {
+        background: rgba(255, 215, 0, 0.4);
+      }
+
+      .password-error {
+        color: #ff6b6b;
+        margin-top: 15px;
+        display: none;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        display: none;
+      }
+
+      .container.unlocked {
+        display: block;
+      }
+
+      /* HEADER */
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 20px;
+        animation: fadeIn 0.8s ease-in;
+        position: relative;
+      }
+
+      .toolbar-top {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        gap: 15px;
+        z-index: 999;
+      }
+
+      .toolbar-icon {
+        position: relative;
+        font-size: 1.2rem;
+        color: #ffd700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+      }
+
+      .toolbar-icon:hover {
+        transform: scale(1.15);
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+      }
+
+      .icon-tooltip {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.95);
+        color: #ffd700;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        margin-top: 10px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        border: 1px solid #ffd700;
+        font-weight: 600;
+        z-index: 1000;
+      }
+
+      .toolbar-icon:hover .icon-tooltip {
+        opacity: 1;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        color: #ffd700;
+        text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+        margin-bottom: 5px;
+        font-weight: 700;
+      }
+
+      .header .age {
+        font-size: 0.95rem;
+        color: #999;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1rem;
+        color: #00d4ff;
+        font-weight: 500;
+      }
+
+      /* MAIN LAYOUT */
+      .main-layout {
+        display: flex;
+        gap: 40px;
+        align-items: flex-start;
+      }
+
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      /* PROFILE SECTION */
+      .profile-section {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 20px;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .profile-image-wrapper {
+        width: 200px;
+        height: 200px;
+      }
+
+      .profile-image {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 4px solid #ffd700;
+        overflow: hidden;
+        background: #222;
+        box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+      }
+
+      .profile-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+
+      /* SKILL ICONS */
+      .skill-icons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .skill-icon {
+        position: relative;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: rgba(0, 212, 255, 0.15);
+        border: 2px solid #00d4ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffd700;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+      }
+
+      .skill-icon:hover {
+        background: rgba(0, 212, 255, 0.3);
+        transform: scale(1.15);
+      }
+
+      .skill-icon.active {
+        background: rgba(255, 215, 0, 0.3);
+        border-color: #ffd700;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      }
+
+      .skill-tooltip {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: #ffd700;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        margin-bottom: 8px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        border: 1px solid #ffd700;
+      }
+
+      .skill-icon:hover .skill-tooltip {
+        opacity: 1;
+      }
+
+      /* SKILL CONTENT */
+      .skill-content-display {
+        display: none;
+        background: rgba(0, 212, 255, 0.08);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 15px;
+        padding: 20px;
+        animation: slideIn 0.3s ease;
+      }
+
+      .skill-content-display.active {
+        display: block;
+      }
+
+      .skill-content-display h3 {
+        font-size: 1.3rem;
+        color: #ffd700;
+        margin-bottom: 15px;
+      }
+
+      .skill-content-display p {
+        color: #e0e0e0;
+        line-height: 1.8;
+        margin-bottom: 12px;
+      }
+
+      .skill-content-display ul,
+      .skill-content-display ol {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .skill-content-display li {
+        color: #e0e0e0;
+        padding-left: 20px;
+        margin-bottom: 8px;
+        position: relative;
+        list-style: none;
+      }
+
+      .skill-content-display li:before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: #00d4ff;
+        font-weight: bold;
+      }
+
+      /* WERDEGANG */
+      .werdegang-container {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 20px;
+        padding: 30px;
+      }
+
+      .werdegang-title {
+        font-size: 1.4rem;
+        color: #ffd700;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 600;
+      }
+
+      .stations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+      }
+
+      .station {
+        background: rgba(0, 212, 255, 0.1);
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        border-radius: 12px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        min-height: 100px;
+        position: relative;
+      }
+
+      .station:hover {
+        background: rgba(0, 212, 255, 0.2);
+        border-color: #00d4ff;
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 212, 255, 0.2);
+      }
+
+      .station.active {
+        background: rgba(255, 215, 0, 0.2);
+        border-color: #ffd700;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+      }
+
+      .station.highlight {
+        border-color: rgba(76, 175, 80, 0.5);
+        background: rgba(76, 175, 80, 0.1);
+      }
+
+      .station.highlight.active {
+        background: rgba(76, 175, 80, 0.2);
+        border-color: #4caf50;
+        box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+      }
+
+      .station.highlight-negative {
+        border-color: rgba(255, 107, 107, 0.5);
+        background: rgba(255, 107, 107, 0.1);
+      }
+
+      .station.highlight-negative.active {
+        background: rgba(255, 107, 107, 0.2);
+        border-color: #ff6b6b;
+        box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+      }
+
+      .station-year {
+        font-size: 1rem;
+        color: #00d4ff;
+        margin-bottom: auto;
+        margin-top: 10px;
+        flex-shrink: 0;
+      }
+
+      .station-text {
+        font-size: 0.9rem;
+        color: #e0e0e0;
+        font-weight: 500;
+        margin-top: auto;
+        flex-shrink: 0;
+      }
+
+      /* CONTENT SECTION */
+      .content-section {
+        display: none;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 20px;
+        padding: 30px;
+        margin-top: 30px;
+        animation: slideIn 0.3s ease;
+        color: #e0e0e0;
+      }
+
+      .content-section.active {
+        display: block;
+      }
+
+      .content-section h2 {
+        color: #ffd700;
+        margin-bottom: 15px;
+        font-weight: 700;
+        font-size: 1.8rem;
+      }
+
+      .content-section h3 {
+        color: #00d4ff;
+        margin-top: 20px;
+        margin-bottom: 12px;
+        font-weight: 600;
+      }
+
+      .content-section p {
+        line-height: 1.8;
+        margin-bottom: 15px;
+      }
+
+      .content-section ul,
+      .content-section ol {
+        list-style: none;
+        margin-left: 20px;
+        margin-bottom: 15px;
+      }
+
+      .content-section li {
+        margin-bottom: 8px;
+        line-height: 1.6;
+        position: relative;
+        padding-left: 20px;
+      }
+
+      .content-section li:before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: #00d4ff;
+      }
+
+      .content-section strong {
+        color: #00d4ff;
+      }
+
+      /* ANIMATIONS */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 768px) {
         .container {
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* HEADER */
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 20px;
-            animation: fadeIn 0.8s ease-in;
-            position: relative;
-        }
-
-        .toolbar-top {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 15px;
-            z-index: 999;
-        }
-
-        .toolbar-icon {
-            position: relative;
-            font-size: 1.2rem;
-            color: #ffd700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .toolbar-icon:hover {
-            transform: scale(1.15);
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        }
-
-        .icon-tooltip {
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.95);
-            color: #ffd700;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            white-space: nowrap;
-            margin-top: 10px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            border: 1px solid #ffd700;
-            font-weight: 600;
-            z-index: 1000;
-        }
-
-        .toolbar-icon:hover .icon-tooltip {
-            opacity: 1;
+          margin-left: 0;
+          margin-right: 0;
+          width: calc(100vw - 20px);
+          max-width: 100%;
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            color: #ffd700;
-            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
-            margin-bottom: 5px;
-            font-weight: 700;
+          font-size: 1.5rem;
         }
 
         .header .age {
-            font-size: 0.95rem;
-            color: #999;
-            margin-bottom: 10px;
+          font-size: 0.8rem;
         }
 
-        .header p {
-            font-size: 1rem;
-            color: #00d4ff;
-            font-weight: 500;
+        .toolbar-icon {
+          font-size: 1rem;
         }
 
-        /* MAIN LAYOUT */
         .main-layout {
-            display: flex;
-            gap: 40px;
-            align-items: flex-start;
+          flex-direction: column;
+          gap: 20px;
+          width: 100%;
+          margin: 0;
         }
 
         .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
+          width: 100%;
         }
 
-        /* PROFILE SECTION */
         .profile-section {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 20px;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
+          padding: 20px;
+          width: 100%;
         }
 
-        .profile-image-wrapper {
-            width: 200px;
-            height: 200px;
-        }
-
-        .profile-image {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 4px solid #ffd700;
-            overflow: hidden;
-            background: #222;
-            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
-        }
-
-        .profile-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-        /* SKILL ICONS */
         .skill-icons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
+          gap: 8px;
         }
 
         .skill-icon {
-            position: relative;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: rgba(0, 212, 255, 0.15);
-            border: 2px solid #00d4ff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffd700;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+          width: 40px;
+          height: 40px;
+          font-size: 18px;
         }
 
-        .skill-icon:hover {
-            background: rgba(0, 212, 255, 0.3);
-            transform: scale(1.15);
-        }
-
-        .skill-icon.active {
-            background: rgba(255, 215, 0, 0.3);
-            border-color: #ffd700;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-        }
-
-        .skill-tooltip {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: #ffd700;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            margin-bottom: 8px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            border: 1px solid #ffd700;
-        }
-
-        .skill-icon:hover .skill-tooltip {
-            opacity: 1;
-        }
-
-        /* SKILL CONTENT */
-        .skill-content-display {
-            display: none;
-            background: rgba(0, 212, 255, 0.08);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 15px;
-            padding: 20px;
-            animation: slideIn 0.3s ease;
-        }
-
-        .skill-content-display.active {
-            display: block;
-        }
-
-        .skill-content-display h3 {
-            font-size: 1.3rem;
-            color: #ffd700;
-            margin-bottom: 15px;
-        }
-
-        .skill-content-display p {
-            color: #e0e0e0;
-            line-height: 1.8;
-            margin-bottom: 12px;
-        }
-
-        .skill-content-display ul,
-        .skill-content-display ol {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .skill-content-display li {
-            color: #e0e0e0;
-            padding-left: 20px;
-            margin-bottom: 8px;
-            position: relative;
-            list-style: none;
-        }
-
-        .skill-content-display li:before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            color: #00d4ff;
-            font-weight: bold;
-        }
-
-        /* WERDEGANG */
         .werdegang-container {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 20px;
-            padding: 30px;
-        }
-
-        .werdegang-title {
-            font-size: 1.4rem;
-            color: #ffd700;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 600;
+          padding: 20px;
+          width: 100%;
         }
 
         .stations-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         }
 
-        .station {
-            background: rgba(0, 212, 255, 0.1);
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            border-radius: 12px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            min-height: 100px;
-            position: relative;
-        }
-
-        .station:hover {
-            background: rgba(0, 212, 255, 0.2);
-            border-color: #00d4ff;
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.2);
-        }
-
-        .station.active {
-            background: rgba(255, 215, 0, 0.2);
-            border-color: #ffd700;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-        }
-
-        .station.highlight {
-            border-color: rgba(76, 175, 80, 0.5);
-            background: rgba(76, 175, 80, 0.1);
-        }
-
-        .station.highlight.active {
-            background: rgba(76, 175, 80, 0.2);
-            border-color: #4caf50;
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
-        }
-
-        .station.highlight-negative {
-            border-color: rgba(255, 107, 107, 0.5);
-            background: rgba(255, 107, 107, 0.1);
-        }
-
-        .station.highlight-negative.active {
-            background: rgba(255, 107, 107, 0.2);
-            border-color: #ff6b6b;
-            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
-        }
-
-        .station-year {
-            font-size: 1rem;
-            color: #00d4ff;
-            margin-bottom: auto;
-            margin-top: 10px;
-            flex-shrink: 0;
-        }
-
-        .station-text {
-            font-size: 0.9rem;
-            color: #e0e0e0;
-            font-weight: 500;
-            margin-top: auto;
-            flex-shrink: 0;
-        }
-
-        /* CONTENT SECTION */
         .content-section {
-            display: none;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 20px;
-            padding: 30px;
-            margin-top: 30px;
-            animation: slideIn 0.3s ease;
-            color: #e0e0e0;
+          padding: 20px;
+          margin-top: 20px;
+          width: 100%;
         }
 
-        .content-section.active {
-            display: block;
+        #contentContainer {
+          width: 100%;
         }
-
-        .content-section h2 {
-            color: #ffd700;
-            margin-bottom: 15px;
-            font-weight: 700;
-            font-size: 1.8rem;
-        }
-
-        .content-section h3 {
-            color: #00d4ff;
-            margin-top: 20px;
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-
-        .content-section p {
-            line-height: 1.8;
-            margin-bottom: 15px;
-        }
-
-        .content-section ul,
-        .content-section ol {
-            list-style: none;
-            margin-left: 20px;
-            margin-bottom: 15px;
-        }
-
-        .content-section li {
-            margin-bottom: 8px;
-            line-height: 1.6;
-            position: relative;
-            padding-left: 20px;
-        }
-
-        .content-section li:before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            color: #00d4ff;
-        }
-
-        .content-section strong {
-            color: #00d4ff;
-        }
-
-        /* ANIMATIONS */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .container {
-                margin-left: 0;
-                margin-right: 0;
-                width: calc(100vw - 20px);
-                max-width: 100%;
-            }
-
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .header .age {
-                font-size: 0.8rem;
-            }
-
-            .toolbar-icon {
-                font-size: 1rem;
-            }
-
-            .main-layout {
-                flex-direction: column;
-                gap: 20px;
-                width: 100%;
-                margin: 0;
-            }
-
-            .main-content {
-                width: 100%;
-            }
-
-            .profile-section {
-                padding: 20px;
-                width: 100%;
-            }
-
-            .skill-icons {
-                gap: 8px;
-            }
-
-            .skill-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 18px;
-            }
-
-            .werdegang-container {
-                padding: 20px;
-                width: 100%;
-            }
-
-            .stations-grid {
-                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            }
-
-            .content-section {
-                padding: 20px;
-                margin-top: 20px;
-                width: 100%;
-            }
-
-            #contentContainer {
-                width: 100%;
-            }
-        }
+      }
     </style>
-</head>
-<body>
-    <div class="container">
-        <!-- HEADER -->
-        <div class="header">
-            <div class="toolbar-top">
-                <a href="admin.html" class="toolbar-icon">
-                    <i class="fas fa-cog"></i>
-                    <div class="icon-tooltip">Admin</div>
-                </a>
-            </div>
-            <h1 id="headerName">Daniel Meiermann</h1>
-            <div class="age" id="headerAge">41 Jahre</div>
-            <p>Meine Karriere-Reise</p>
+  </head>
+  <body>
+    <!-- PASSWORD SCREEN -->
+    <div class="password-screen" id="passwordScreen">
+      <div class="password-box">
+        <h1>🔐 Geschützter Bereich</h1>
+        <p>Bitte geben Sie die Passphrase ein</p>
+        <input
+          type="password"
+          id="passwordInput"
+          placeholder="Passphrase eingeben..."
+        />
+        <button onclick="checkPassword()">Entsperren</button>
+        <div class="password-error" id="passwordError">
+          ❌ Falsche Passphrase
         </div>
+      </div>
+    </div>
 
-        <!-- MAIN LAYOUT -->
-        <div class="main-layout">
-            <div class="main-content">
-                <!-- PROFILE SECTION -->
-                <div class="profile-section">
-                    <div class="profile-image-wrapper">
-                        <div class="profile-image">
-                            <img src="profile.jpg" alt="Profil">
-                        </div>
-                    </div>
-                    <div class="skill-icons" id="skillIconsContainer"></div>
-                </div>
-
-                <!-- SKILL CONTENT -->
-                <div class="skill-content-display" id="skillContent"></div>
-
-                <!-- WERDEGANG -->
-                <div class="werdegang-container">
-                    <h3 class="werdegang-title">📈 Werdegang</h3>
-                    <div class="stations-grid" id="stationsGrid"></div>
-                </div>
-            </div>
+    <!-- MAIN CONTENT -->
+    <div class="container" id="mainContainer">
+      <!-- HEADER -->
+      <div class="header">
+        <div class="toolbar-top">
+          <a href="admin.html" class="toolbar-icon">
+            <i class="fas fa-cog"></i>
+            <div class="icon-tooltip">Admin</div>
+          </a>
+          <div class="toolbar-icon" onclick="lockScreen()">
+            <i class="fas fa-lock"></i>
+            <div class="icon-tooltip">Sperren</div>
+          </div>
         </div>
+        <h1 id="headerName">Daniel Meiermann</h1>
+        <div class="age" id="headerAge">41 Jahre</div>
+        <p>Meine Karriere-Reise</p>
+      </div>
 
-        <!-- CONTENT SECTIONS -->
-        <div id="contentContainer"></div>
+      <!-- MAIN LAYOUT -->
+      <div class="main-layout">
+        <div class="main-content">
+          <!-- PROFILE SECTION -->
+          <div class="profile-section">
+            <div class="profile-image-wrapper">
+              <div class="profile-image">
+                <img src="profile.jpg" alt="Profil" />
+              </div>
+            </div>
+            <div class="skill-icons" id="skillIconsContainer"></div>
+          </div>
+
+          <!-- SKILL CONTENT -->
+          <div class="skill-content-display" id="skillContent"></div>
+
+          <!-- WERDEGANG -->
+          <div class="werdegang-container">
+            <h3 class="werdegang-title">📈 Werdegang</h3>
+            <div class="stations-grid" id="stationsGrid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTENT SECTIONS -->
+      <div id="contentContainer"></div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
     <script>
-        // @ts-nocheck
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyD1ifyOzWUOiN-_VmRhzBGkq1PsxUwfdqY",
-            authDomain: "danielmeiermann-8fbd8.firebaseapp.com",
-            databaseURL: "https://danielmeiermann-8fbd8-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "danielmeiermann-8fbd8",
-            storageBucket: "danielmeiermann-8fbd8.appspot.com",
-            messagingSenderId: "641372578638",
-            appId: "1:641372578638:web:66f9c8e7fec71c26a3341f"
-        };
+      const firebaseConfig = {
+        apiKey: "AIzaSyD1ifyOzWUOiN-_VmRhzBGkq1PsxUwfdqY",
+        authDomain: "danielmeiermann-8fbd8.firebaseapp.com",
+        databaseURL:
+          "https://danielmeiermann-8fbd8-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "danielmeiermann-8fbd8",
+        storageBucket: "danielmeiermann-8fbd8.appspot.com",
+        messagingSenderId: "641372578638",
+        appId: "1:641372578638:web:66f9c8e7fec71c26a3341f",
+      };
 
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const dataRef = database.ref('presentations/data');
+      firebase.initializeApp(firebaseConfig);
+      const database = firebase.database();
+      const dataRef = database.ref("presentations/data");
+      const passphraseRef = database.ref("presentations/passphrase");
 
-        let appData = {};
-        const skillContents = [];
-        let currentSkillIndex = null;
-        let currentStationIndex = null;
+      let appData = {};
+      const skillContents = [];
+      let currentSkillIndex = null;
+      let currentStationIndex = null;
+      let correctPassphrase = "";
 
-        async function loadData() {
-            try {
-                dataRef.once('value')
-                    .then(snapshot => {
-                        if (snapshot.exists()) {
-                            appData = snapshot.val();
-                            renderPresentation();
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Fehler beim Laden von Firebase:', err);
-                    });
-            } catch (err) {
-                console.error('Firebase nicht erreichbar:', err);
-            }
+      // Lade Passphrase aus Firebase
+      passphraseRef.once("value").then((snapshot) => {
+        if (snapshot.exists()) {
+          correctPassphrase = snapshot.val();
+        } else {
+          // Standard-Passphrase falls noch keine gesetzt wurde
+          correctPassphrase = "MeinGeheim2024";
+          passphraseRef.set(correctPassphrase);
         }
+      });
 
-        function renderPresentation() {
-            const profile = appData.profile;
-            document.getElementById('headerName').textContent = profile.name;
-            document.getElementById('headerAge').textContent = profile.age;
-            document.querySelector('.profile-image img').src = profile.imageUrl;
+      // Check ob bereits entsperrt (Session)
+      if (sessionStorage.getItem("unlocked") === "true") {
+        unlockContent();
+      }
 
-            const skillIconsContainer = document.getElementById('skillIconsContainer');
-            skillIconsContainer.innerHTML = appData.skills.map((skill, idx) => `
+      function checkPassword() {
+        const input = document.getElementById("passwordInput").value;
+
+        if (input === correctPassphrase) {
+          sessionStorage.setItem("unlocked", "true");
+          unlockContent();
+        } else {
+          document.getElementById("passwordError").style.display = "block";
+          document.getElementById("passwordInput").value = "";
+          setTimeout(() => {
+            document.getElementById("passwordError").style.display = "none";
+          }, 3000);
+        }
+      }
+
+      function unlockContent() {
+        document.getElementById("passwordScreen").style.display = "none";
+        document.getElementById("mainContainer").classList.add("unlocked");
+        loadData();
+      }
+
+      function lockScreen() {
+        sessionStorage.removeItem("unlocked");
+        document.getElementById("passwordScreen").style.display = "flex";
+        document.getElementById("mainContainer").classList.remove("unlocked");
+        document.getElementById("passwordInput").value = "";
+      }
+
+      // Enter-Taste im Passwortfeld
+      document.addEventListener("DOMContentLoaded", () => {
+        document
+          .getElementById("passwordInput")
+          .addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+              checkPassword();
+            }
+          });
+      });
+
+      async function loadData() {
+        try {
+          dataRef
+            .once("value")
+            .then((snapshot) => {
+              if (snapshot.exists()) {
+                appData = snapshot.val();
+                renderPresentation();
+              }
+            })
+            .catch((err) => {
+              console.error("Fehler beim Laden von Firebase:", err);
+            });
+        } catch (err) {
+          console.error("Firebase nicht erreichbar:", err);
+        }
+      }
+
+      function renderPresentation() {
+        const profile = appData.profile;
+        document.getElementById("headerName").textContent = profile.name;
+        document.getElementById("headerAge").textContent = profile.age;
+        document.querySelector(".profile-image img").src = profile.imageUrl;
+
+        const skillIconsContainer = document.getElementById(
+          "skillIconsContainer"
+        );
+        skillIconsContainer.innerHTML = appData.skills
+          .map(
+            (skill, idx) => `
                 <div class="skill-icon" onclick="toggleSkill(${idx})">
                     <i class="fas ${skill.icon}"></i>
                     <div class="skill-tooltip">${skill.name}</div>
                 </div>
-            `).join('');
+            `
+          )
+          .join("");
 
-            skillContents.length = 0;
-            appData.skills.forEach(skill => {
-                skillContents.push({
-                    title: skill.title,
-                    body: skill.content
-                });
-            });
+        skillContents.length = 0;
+        appData.skills.forEach((skill) => {
+          skillContents.push({
+            title: skill.title,
+            body: skill.content,
+          });
+        });
 
-            const stationsGrid = document.getElementById('stationsGrid');
-            stationsGrid.innerHTML = appData.stations.map((station, idx) => `
-                <div class="station ${station.type === 'highlight' ? (station.sentiment === 'negative' ? 'highlight-negative' : 'highlight') : ''}" onclick="toggleContent(${idx})">
+        const stationsGrid = document.getElementById("stationsGrid");
+        stationsGrid.innerHTML = appData.stations
+          .map(
+            (station, idx) => `
+                <div class="station ${
+                  station.type === "highlight"
+                    ? station.sentiment === "negative"
+                      ? "highlight-negative"
+                      : "highlight"
+                    : ""
+                }" onclick="toggleContent(${idx})">
                     <div style="position: absolute; top: 4px; left: 4px; font-size: 0.9rem;">
-                        ${station.type === 'highlight' ? (station.sentiment === 'negative' ? '⚡' : '⭐') : '📍'}
+                        ${
+                          station.type === "highlight"
+                            ? station.sentiment === "negative"
+                              ? "⚡"
+                              : "⭐"
+                            : "📍"
+                        }
                     </div>
                     <div class="station-year">${station.year}</div>
                     <div class="station-text">${station.title}</div>
                 </div>
-            `).join('');
+            `
+          )
+          .join("");
 
-            const contentContainer = document.getElementById('contentContainer');
-            contentContainer.innerHTML = appData.stations.map((station, idx) => {
-                let cleanContent = station.content.replace(/<h2>.*?<\/h2>/s, '');
-                
-                return `
+        const contentContainer = document.getElementById("contentContainer");
+        contentContainer.innerHTML = appData.stations
+          .map((station, idx) => {
+            let cleanContent = station.content.replace(/<h2>.*?<\/h2>/s, "");
+
+            return `
                 <div class="content-section" id="content${idx}">
                     <h2 style="color: #ffd700; font-size: 1.8rem; margin-bottom: 15px; font-weight: 700;">
-                        ${station.type === 'highlight' ? (station.sentiment === 'negative' ? '⚡' : '⭐') : '📍'} 
+                        ${
+                          station.type === "highlight"
+                            ? station.sentiment === "negative"
+                              ? "⚡"
+                              : "⭐"
+                            : "📍"
+                        } 
                         ${station.year} - ${station.title}
                     </h2>
-                    ${station.type === 'station' && station.logoUrl ? `<img src="logos/${station.logoUrl}" style="max-width: 150px; max-height: 100px; margin-bottom: 20px; border-radius: 8px;" alt="${station.title} Logo" onerror="this.style.display='none'">` : ''}
+                    ${
+                      station.type === "station" && station.logoUrl
+                        ? `<img src="logos/${station.logoUrl}" style="max-width: 150px; max-height: 100px; margin-bottom: 20px; border-radius: 8px;" alt="${station.title} Logo" onerror="this.style.display='none'">`
+                        : ""
+                    }
                     ${cleanContent}
                 </div>
-            `}).join('');
+            `;
+          })
+          .join("");
+      }
+
+      function formatListsInContent(html) {
+        html = html.replace(/<ol>/g, "<ul>");
+        html = html.replace(/<\/ol>/g, "</ul>");
+        return html;
+      }
+
+      function toggleSkill(index) {
+        const skillContent = document.getElementById("skillContent");
+
+        if (currentSkillIndex === index) {
+          currentSkillIndex = null;
+          document
+            .querySelectorAll(".skill-icon")
+            .forEach((el) => el.classList.remove("active"));
+          skillContent.classList.remove("active");
+        } else {
+          currentSkillIndex = index;
+          document
+            .querySelectorAll(".skill-icon")
+            .forEach((el) => el.classList.remove("active"));
+          document
+            .querySelectorAll(".skill-icon")
+            [index].classList.add("active");
+          const formattedBody = formatListsInContent(skillContents[index].body);
+          skillContent.innerHTML = `<h3>${skillContents[index].title}</h3>${formattedBody}`;
+          skillContent.classList.add("active");
         }
+      }
 
-        function formatListsInContent(html) {
-            // Konvertiere ol/ul zu ul 
-            html = html.replace(/<ol>/g, '<ul>');
-            html = html.replace(/<\/ol>/g, '</ul>');
-            
-            // Die CSS kümmert sich um die Pfeile
-            return html;
+      function toggleContent(index) {
+        if (currentStationIndex === index) {
+          currentStationIndex = null;
+          document
+            .querySelectorAll(".station")
+            .forEach((el) => el.classList.remove("active"));
+          document
+            .querySelectorAll(".content-section")
+            .forEach((el) => el.classList.remove("active"));
+        } else {
+          currentStationIndex = index;
+          document
+            .querySelectorAll(".station")
+            .forEach((el) => el.classList.remove("active"));
+          document
+            .querySelectorAll(".content-section")
+            .forEach((el) => el.classList.remove("active"));
+          document.querySelectorAll(".station")[index].classList.add("active");
+          document.getElementById(`content${index}`).classList.add("active");
         }
+      }
 
-        function toggleSkill(index) {
-            const skillContent = document.getElementById('skillContent');
-            
-            if (currentSkillIndex === index) {
-                currentSkillIndex = null;
-                document.querySelectorAll('.skill-icon').forEach(el => el.classList.remove('active'));
-                skillContent.classList.remove('active');
-            } else {
-                currentSkillIndex = index;
-                document.querySelectorAll('.skill-icon').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('.skill-icon')[index].classList.add('active');
-                const formattedBody = formatListsInContent(skillContents[index].body);
-                skillContent.innerHTML = `<h3>${skillContents[index].title}</h3>${formattedBody}`;
-                skillContent.classList.add('active');
-            }
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          currentSkillIndex = null;
+          currentStationIndex = null;
+          document
+            .querySelectorAll(".skill-icon")
+            .forEach((el) => el.classList.remove("active"));
+          document
+            .querySelectorAll(".station")
+            .forEach((el) => el.classList.remove("active"));
+          document
+            .querySelectorAll(".content-section")
+            .forEach((el) => el.classList.remove("active"));
+          document.getElementById("skillContent").classList.remove("active");
         }
+      });
 
-        function toggleContent(index) {
-            if (currentStationIndex === index) {
-                currentStationIndex = null;
-                document.querySelectorAll('.station').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
-            } else {
-                currentStationIndex = index;
-                document.querySelectorAll('.station').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('.station')[index].classList.add('active');
-                document.getElementById(`content${index}`).classList.add('active');
-            }
+      setInterval(() => {
+        if (
+          Object.keys(appData).length === 0 &&
+          sessionStorage.getItem("unlocked") === "true"
+        ) {
+          loadData();
         }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                currentSkillIndex = null;
-                currentStationIndex = null;
-                document.querySelectorAll('.skill-icon').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('.station').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
-                document.getElementById('skillContent').classList.remove('active');
-            }
-        });
-
-        setInterval(() => {
-            if (Object.keys(appData).length === 0) {
-                loadData();
-            }
-        }, 2000);
-
-        loadData();
+      }, 2000);
     </script>
-</body>
+  </body>
 </html>

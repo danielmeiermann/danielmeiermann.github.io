@@ -1,1 +1,0 @@
-# danielmeiermann.github.io

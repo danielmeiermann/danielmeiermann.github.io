@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title>Admin Panel - Daniel Meiermann</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.snow.css" rel="stylesheet">
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <style>
         /* Quill Custom Color Palette */
         .ql-snow .ql-picker.ql-color .ql-picker-item::before,
@@ -338,12 +337,61 @@
             color: #4caf50;
         }
 
+        .message.error {
+            display: block;
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+        }
+
         .sortable-list {
             background: rgba(0, 212, 255, 0.05);
             border: 1px solid rgba(0, 212, 255, 0.3);
             border-radius: 10px;
             padding: 15px;
             margin-top: 15px;
+        }
+
+        .current-passphrase-box {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .current-passphrase-box h3 {
+            color: #ffd700;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .current-passphrase-box p {
+            color: #e0e0e0;
+            font-size: 1.2rem;
+            font-family: monospace;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-box h3 {
+            color: #00d4ff;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .info-box p {
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            line-height: 1.6;
         }
     </style>
 </head>
@@ -382,6 +430,7 @@
             <button class="tab-btn" onclick="switchTab('skills')">💡 Kompetenzen</button>
             <button class="tab-btn" onclick="switchTab('werdegang')">📈 Werdegang & Highlights</button>
             <button class="tab-btn" onclick="switchTab('transcript')">📄 Transkript</button>
+            <button class="tab-btn" onclick="switchTab('passphrase')">🔐 Passphrase</button>
         </div>
 
         <div id="profile" class="tab-content active">
@@ -482,6 +531,53 @@
                 </div>
             </div>
         </div>
+
+        <div id="passphrase" class="tab-content">
+            <div class="section">
+                <h2>🔐 Passphrase Manager</h2>
+                
+                <div class="current-passphrase-box">
+                    <h3>Aktuell gesetzte Passphrase:</h3>
+                    <p id="currentPassphrase">Wird geladen...</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>ℹ️ Hinweis</h3>
+                    <p>Diese Passphrase wird benötigt, um auf die geschützte index.html zuzugreifen. Bewahren Sie diese sicher auf und teilen Sie sie nur mit vertrauenswürdigen Personen.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Neue Passphrase setzen</h2>
+                
+                <div class="form-group">
+                    <label>Neue Passphrase</label>
+                    <input type="text" id="newPassphrase" placeholder="Mindestens 8 Zeichen">
+                </div>
+
+                <div class="form-group">
+                    <label>Passphrase bestätigen</label>
+                    <input type="text" id="confirmPassphrase" placeholder="Passphrase wiederholen">
+                </div>
+
+                <button class="btn btn-success" onclick="updatePassphrase()">
+                    <i class="fas fa-save"></i> Passphrase aktualisieren
+                </button>
+
+                <div class="message" id="passphraseMessage"></div>
+            </div>
+
+            <div class="info-box">
+                <h3>🔒 Sicherheits-Tipps</h3>
+                <p>
+                    • Verwenden Sie mindestens 8 Zeichen<br>
+                    • Kombinieren Sie Groß- und Kleinbuchstaben, Zahlen und Sonderzeichen<br>
+                    • Vermeiden Sie einfache Wörter oder persönliche Daten<br>
+                    • Ändern Sie die Passphrase regelmäßig<br>
+                    • Teilen Sie die Passphrase nur verschlüsselt (z.B. per Signal, WhatsApp)
+                </p>
+            </div>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -503,6 +599,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const dataRef = database.ref('presentations/data');
+        const passphraseRef = database.ref('presentations/passphrase');
         const auth = firebase.auth();
 
         // Check Login Status
@@ -511,6 +608,7 @@
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
                 loadData();
+                loadCurrentPassphrase();
             } else {
                 document.getElementById('loginScreen').style.display = 'flex';
                 document.getElementById('adminPanel').style.display = 'none';
@@ -544,6 +642,82 @@
         let appData = {};
         let draggedItem = null;
         let highlightEditors = {};
+
+        // PASSPHRASE FUNCTIONS
+        function loadCurrentPassphrase() {
+            passphraseRef.once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    document.getElementById('currentPassphrase').textContent = snapshot.val();
+                } else {
+                    document.getElementById('currentPassphrase').textContent = 'Noch nicht gesetzt (Standard: MeinGeheim2024)';
+                    // Setze Standard-Passphrase
+                    passphraseRef.set('MeinGeheim2024');
+                }
+            }).catch(err => {
+                console.error('Fehler beim Laden der Passphrase:', err);
+                document.getElementById('currentPassphrase').textContent = 'Fehler beim Laden';
+            });
+        }
+
+        function updatePassphrase() {
+            const newPass = document.getElementById('newPassphrase').value;
+            const confirmPass = document.getElementById('confirmPassphrase').value;
+            const messageEl = document.getElementById('passphraseMessage');
+
+            // Validierung
+            if (!newPass || !confirmPass) {
+                showPassphraseMessage('Bitte füllen Sie beide Felder aus', 'error');
+                return;
+            }
+
+            if (newPass.length < 8) {
+                showPassphraseMessage('Die Passphrase muss mindestens 8 Zeichen lang sein', 'error');
+                return;
+            }
+
+            if (newPass !== confirmPass) {
+                showPassphraseMessage('Die Passphrases stimmen nicht überein', 'error');
+                return;
+            }
+
+            // Speichere in Firebase
+            passphraseRef.set(newPass)
+                .then(() => {
+                    showPassphraseMessage('✓ Passphrase erfolgreich aktualisiert!', 'success');
+                    document.getElementById('currentPassphrase').textContent = newPass;
+                    document.getElementById('newPassphrase').value = '';
+                    document.getElementById('confirmPassphrase').value = '';
+                })
+                .catch(err => {
+                    console.error('Fehler beim Speichern:', err);
+                    showPassphraseMessage('❌ Fehler beim Speichern: ' + err.message, 'error');
+                });
+        }
+
+        function showPassphraseMessage(text, type) {
+            const messageEl = document.getElementById('passphraseMessage');
+            messageEl.textContent = text;
+            messageEl.className = 'message ' + type;
+            messageEl.style.display = 'block';
+
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageEl.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Enter-Taste Support für Passphrase
+        document.addEventListener('DOMContentLoaded', () => {
+            const confirmField = document.getElementById('confirmPassphrase');
+            if (confirmField) {
+                confirmField.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        updatePassphrase();
+                    }
+                });
+            }
+        });
 
         function renderTranscript() {
             // Render Skills
@@ -1368,6 +1542,11 @@
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
+            
+            // Load passphrase when switching to that tab
+            if (tabName === 'passphrase') {
+                loadCurrentPassphrase();
+            }
         }
 
         function showMessage(elementId) {
